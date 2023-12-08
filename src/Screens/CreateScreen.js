@@ -17,7 +17,11 @@ function CreateScreen() {
     const [description, onChangeDescription] = useState('Description');
     const [image, setImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
-
+    const [selectedFile, setSelectedFile] = useState(null);
+    
+    const handleFileChange = (event) => {
+      setSelectedFile(event.target.files[0]);
+    };
 
     const [startCamera,setStartCamera] = useState(false)
 
@@ -31,13 +35,19 @@ function CreateScreen() {
      }
     }
 
+
+
+      
     
     const postEvent = () => {
       const formData = new FormData();
-      formData.append('file', image)
-      formData.append('title', 'Your Title Here');
-      formData.append('description', 'Your Description Here');
+      formData.append('eventImg', selectedFile)
+      formData.append('eventTitle', 'Your Title Here');
+      formData.append('eventDescription', 'Your Description Here');
       console.log(formData)
+      for (var pair of formData.entries()) {
+        console.log(pair[0]+ ', ' + pair[1]); 
+    }
     
       api.post(`/event`, formData, {
         headers: {
@@ -45,12 +55,12 @@ function CreateScreen() {
         }
       })
       .then(response => {
-          //console.log(response.data);
+          console.log(response.data);
       })
       .catch(error => {
           if(error.response.data.message === 'No file uploaded.'){
           }
-          //console.log(error.response.data.message);
+          console.log(error.response.data.message);
       });
     }
 
@@ -163,7 +173,7 @@ function CreateScreen() {
                   </View>
                   
                   {image && <Image source={{ uri: image }} style={{aspectRatio: 1, width: '80%'}} />}
-                  <Button title="Pick an image from camera roll" onPress={pickImage} />
+                  <input type="file" onChange={handleFileChange} />
                   <Button title="Take a photo" onPress={__startCamera} /> 
 
             </View>

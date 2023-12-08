@@ -17,7 +17,7 @@ function HomeScreen() {
 
   useEffect(() => {
     // Perform GET request when the component mounts
-    api.get('/event')
+    api.get('/Event')
       .then((response) => {
         // Handle the successful response here
         setPosts(response.data)
@@ -64,6 +64,7 @@ function HomeScreen() {
                 </View>
                 <View style={{marginTop: '-20%'}}>
                   <Text style={styles.postTitle}>{post.title}</Text>
+                  <Text style={styles.postTitle}>{post.description}</Text>
                   <Text style={styles.postDate}>KU Music Club</Text>
                 </View>
                 <View style={{flexDirection: 'row', marginRight: 20}}>

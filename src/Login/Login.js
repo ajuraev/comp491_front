@@ -1,9 +1,41 @@
 import {View, Text, ImageBackground, Image, TextInput, StyleSheet, TouchableOpacity} from 'react-native'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import api from '../api/axiosConfig'
 
 function Login({setUser}){
-    const [username, onChangeUsername] = useState('');
+    const [email, onChangeUsername] = useState('');
     const [password, onChangePassword] = useState('');
+
+
+    const handleSubmit = () => {
+        const loginData = {
+            email: email, // Replace with the actual email
+            password: password,  // Replace with the actual password
+        };
+          
+        api.post('/Event/AppLogin', loginData)
+        .then((response) => {
+            // Handle the successful response here
+            console.log('Login Successful:', response.data);
+            api.get('/Event/loggedUser', {
+                params: {
+                  token: response.data.message,
+                },
+            })
+            .then((response) => {
+                console.log('Data:', response.data);
+                setUser(response.data)
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        })
+        .catch((error) => {
+            // Handle any errors here
+            console.error('Login Error:', error);
+        });
+    }
+    
 
     return (
             <ImageBackground
@@ -21,8 +53,8 @@ function Login({setUser}){
                     <TextInput
                         style={styles.input}
                         onChangeText={onChangeUsername}
-                        value={username}
-                        placeholder='Username'
+                        value={email}
+                        placeholder='Email'
                     />
                     <TextInput
                         style={styles.input}
@@ -31,7 +63,7 @@ function Login({setUser}){
                         placeholder='Password'
                         secureTextEntry={true}
                     />
-                    <TouchableOpacity onPress={() => setUser(true)} style={styles.button}>
+                    <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                         <Text style={{...styles.text, color: 'black'}}>Sign in</Text>
                     </TouchableOpacity>
                 </View> 

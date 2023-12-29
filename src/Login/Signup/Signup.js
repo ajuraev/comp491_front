@@ -6,16 +6,17 @@ import Signup3 from "./Signup3";
 const { StatusBarManager } = NativeModules;
 
 
-function Signup(){
+function Signup({setUser}){
     const [content, setContent] = useState('1')
+    const [userInfo, setUserInfo] = useState({})
 
     const Content = () => {
         if(content === '1'){
             return <Signup1 setContent={setContent}/>
         }else if(content === '2'){
-            return <Signup2 setContent={setContent}/>
+            return <Signup2 setUserInfo={setUserInfo} setContent={setContent}/>
         }else if(content === '3'){
-            return <Signup3 setContent={setContent}/>
+            return <Signup3 setUser={setUser} userInfo={userInfo} setContent={setContent}/>
         }
     }
     return (

@@ -19,7 +19,7 @@ function Signup1({setContent}){
                     <Text style={styles.buttonText}>I'm a Professor</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => onClick()} style={styles.button}>
-                    <Text style={styles.buttonText}>I'm an institute</Text>
+                    <Text style={styles.buttonText}>I'm an Organisation</Text>
                 </TouchableOpacity>
             </View>
             

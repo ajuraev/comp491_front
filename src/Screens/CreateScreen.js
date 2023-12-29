@@ -17,11 +17,7 @@ function CreateScreen() {
     const [description, onChangeDescription] = useState('Description');
     const [image, setImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
-    const [selectedFile, setSelectedFile] = useState(null);
-    
-    const handleFileChange = (event) => {
-      setSelectedFile(event.target.files[0]);
-    };
+
 
     const [startCamera,setStartCamera] = useState(false)
 
@@ -36,31 +32,27 @@ function CreateScreen() {
     }
 
 
-
-      
-    
     const postEvent = () => {
       const formData = new FormData();
-      formData.append('eventImg', selectedFile)
+      formData.append('eventImg', image)
       formData.append('eventTitle', 'Your Title Here');
       formData.append('eventDescription', 'Your Description Here');
+      formData.append('location', 'Some location');
+
       console.log(formData)
-      for (var pair of formData.entries()) {
-        console.log(pair[0]+ ', ' + pair[1]); 
-    }
-    
+
       api.post(`/event`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
       })
       .then(response => {
-          console.log(response.data);
+          //console.log(response.data);
       })
       .catch(error => {
           if(error.response.data.message === 'No file uploaded.'){
           }
-          console.log(error.response.data.message);
+          //console.log(error.response.data.message);
       });
     }
 
@@ -72,18 +64,18 @@ function CreateScreen() {
         aspect: [1, 1],
         quality: 1,
       });
-    
+
       //console.log(result);
-    
+
       if (!result.canceled) {
         // Get the URI of the selected image
         const imageUri = result.assets[0].uri;
-        
+
         setImage(imageUri)
         // Download the image data from the URI
         const response = await fetch(imageUri);
         const imageBuffer = await response.arrayBuffer();
-    
+
         // Now you have the image data as a buffer, which you can include in your FormData
         // const formData = new FormData();
         // formData.append('file', {
@@ -100,11 +92,11 @@ function CreateScreen() {
         })
         // formData.append('title', 'Your Title Here');
         // formData.append('description', 'Your Description Here');
-    
+
         // Now you can send the FormData in your POST request as shown in the previous examples.
       }
     };
-    
+
     return (
         <KeyboardAvoidingView style={styles.container} behavior="padding">
             {startCamera ? (
@@ -171,14 +163,14 @@ function CreateScreen() {
                     value={description}
                   />
                   </View>
-                  
-                  {image && <Image source={{ uri: image }} style={{aspectRatio: 1, width: '80%'}} />}
-                  <input type="file" onChange={handleFileChange} />
-                  <Button title="Take a photo" onPress={__startCamera} /> 
 
+                  {image && <Image source={{ uri: image }} style={{aspectRatio: 1, width: '80%', margin: 10}} />}
+                  <TouchableOpacity onPress={pickImage} style={styles.button}>
+                    <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>Pick image</Text>
+                  </TouchableOpacity>
             </View>
             )}
-            
+
       </KeyboardAvoidingView>
     );
   }
@@ -211,8 +203,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 32,
         borderRadius: 4,
         elevation: 3,
-        backgroundColor: 'black',
-        minWidth: '45%'
+        backgroundColor: '#1e9bd4',
+        marginTop: 10
     },
     text: {
         fontSize: 16,

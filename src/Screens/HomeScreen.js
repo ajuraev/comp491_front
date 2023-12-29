@@ -31,7 +31,6 @@ function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      
       <TextInput
         style={styles.input}
         onChangeText={onChangeText}

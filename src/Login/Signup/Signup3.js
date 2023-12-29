@@ -1,16 +1,68 @@
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, NativeModules} from "react-native"
 const { StatusBarManager } = NativeModules;
+import api from '../../api/axiosConfig'
+import { useState, useEffect } from "react";
 
 
-function Signup3({setContent}){
 
-    const onClick = (userType) => {
-        setContent('')
+function Signup3({setContent, userInfo, setUser}){
+    const [enteredCode, setEnteredCode] = useState('')
+    const [code, setCode] = useState(0)
+
+    useEffect(() => {
+        updateCode()
+    }, []);
+
+    const handleSubmit = () => {
+        if(enteredCode == code){
+            postUser()
+        }else{
+            console.log('Error wrong code')
+        }
     }
 
     const handleResendCode = () => {
-
+        updateCode()
     }
+    
+    const updateCode = () => {
+        api.get('/Event/verifyEmail', {
+            params: {
+              email: userInfo.email,
+            },
+        })
+            .then((response) => {
+                console.log('Data:', response.data);
+                setCode(response.data)
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+    }
+
+    const postUser = () => {
+        const formData = new FormData();
+        formData.append('email', userInfo.email);
+        formData.append('username', userInfo.username);
+        formData.append('displayName', userInfo.displayName);
+        formData.append('password', userInfo.password);
+
+        api.post('/Event/user', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+        })
+        .then((response) => {
+            // Handle the successful response here
+            console.log('Data:', response.data);
+            setUser(response.data);
+        })
+        .catch((error) => {
+            // Handle any errors here
+            console.error('Error:', error);
+        });
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Verify Email</Text>
@@ -18,8 +70,8 @@ function Signup3({setContent}){
                 <Text style={{...styles.text, marginVertical: 20}}>Please, enter the verification code you've received on your email</Text>
                 <TextInput
                     style={styles.input}
-
-                    placeholder='XXXX'
+                    placeholder='XXXXXX'
+                    onChangeText={(text) => setEnteredCode(text)}
                 />
                 <View style={{flexDirection: 'row', justifyContent:'center', marginTop: 20}}>
                     <Text style={styles.text}>I didn't receive a code. Please, </Text>
@@ -27,7 +79,9 @@ function Signup3({setContent}){
                         <Text style={styles.resendCodeText}>re-send code</Text>
                     </TouchableOpacity>
                 </View>
-                
+                <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+                    <Text style={styles.buttonText}>Verify</Text>
+                </TouchableOpacity>
             </View>
         </View>
     )
@@ -80,6 +134,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 10,
         alignItems: 'center'
+    },
+    buttonText: {
+        color: '#2e4374',
+        fontSize: 24,
+        fontFamily: 'Montserrat_400Regular',
     },
   });
 export default Signup3

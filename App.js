@@ -6,21 +6,13 @@ import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from './src/Screens/HomeScreen'
 import CreateScreen from './src/Screens/CreateScreen';
+import ProfileScreen from './src/Screens/ProfileScreen';
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
 import {  useFonts, Montserrat_400Regular, Montserrat_700Bold } from '@expo-google-fonts/montserrat';
 
 import * as SplashScreen from 'expo-splash-screen';
 import Welcome from './src/Login/Welcome'
-
-
-function ProfileScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Search!</Text>
-    </View>
-  );
-}
 
 
 const MyTheme = {
@@ -62,12 +54,17 @@ export default function App() {
                     <Ionicons name="add-circle" color={color} size={size} />
                   ),
               }}/>
-              <Tab.Screen name="Profile" component={ProfileScreen} 
+              <Tab.Screen
+                name="Profile"
                 options={{
                   tabBarIcon: ({ color, size }) => (
                     <Ionicons name="person" color={color} size={size} />
                   ),
-              }}/>
+                }}
+              >
+                {(props) => <ProfileScreen {...props} user={user} />}
+              </Tab.Screen>
+
             </Tab.Navigator>
           </NavigationContainer>
   }

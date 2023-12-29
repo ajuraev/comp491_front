@@ -35,8 +35,8 @@ function CreateScreen() {
     const postEvent = () => {
       const formData = new FormData();
       formData.append('eventImg', image)
-      formData.append('eventTitle', 'Your Title Here');
-      formData.append('eventDescription', 'Your Description Here');
+      formData.append('eventTitle', title);
+      formData.append('eventDescription', description);
       formData.append('location', 'Some location');
 
       console.log(formData)

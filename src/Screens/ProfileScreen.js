@@ -10,7 +10,7 @@ function ProfileScreen({user}){
                 <TouchableOpacity  style={styles.iconButton}>
                     <Ionicons name="arrow-back-outline" color={"white"} size={25} />
                 </TouchableOpacity>
-                <Text style={styles.text}>{user.username}</Text>
+                <Text style={styles.text}>@{user.username}</Text>
                 <TouchableOpacity  style={styles.iconButton}>
                     <Ionicons name="create-outline" color={"white"} size={25}/>
                 </TouchableOpacity>

@@ -47,33 +47,30 @@ function HomeScreen() {
         </Pressable>
       </View>
       <View style={styles.divider}/>
-      <View style={{height: '90%'}} >
-        <ScrollView contentContainerStyle={{
-            alignItems: 'center',
-          }}>
-          {posts.map((post) => (
-            <Pressable style={{flexDirection: 'row', width: '95%', justifyContent: 'center', margin: 10,padding: 10, backgroundColor: 'black', borderRadius: 10}}>
-              <View style={{width: '50%', justifyContent: 'space-between'}}>
-                <View >
+      <View style={{ flex: 1, height: '90%' }}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
+          {posts.map((post, index) => (
+            <Pressable key={index} style={{ flexDirection: 'row', width: '95%', justifyContent: 'center', margin: 10, padding: 10, backgroundColor: 'black', borderRadius: 10 }}>
+              <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                <View>
                   <Text style={styles.postDate}>21:30, SNA A43, Wed, Oct 11</Text>
-                  <View style={{flexDirection: 'row', alignItems: 'center', marginRight: 5}}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 5 }}>
                     <Ionicons name="person-outline" color={'white'} size={10} />
                     <Text style={styles.participantCount}>  147</Text>
                   </View>
                 </View>
-                <View style={{marginTop: '-20%'}}>
+                <View style={{ marginTop: 0 }}>
                   <Text style={styles.postTitle}>{post.title}</Text>
                   <Text style={styles.postTitle}>{post.description}</Text>
                   <Text style={styles.postDate}>KU Music Club</Text>
                 </View>
-                <View style={{flexDirection: 'row', marginRight: 20}}>
+                <View style={{ flexDirection: 'row', marginRight: 20 }}>
                   <Text style={styles.postParticipants}>unal, gokber, abdulla and others are joining</Text>
                   <Ionicons name="bookmark-outline" color={'red'} size={20} />
                 </View>
               </View>
-              <View style={{width: '50%'}}>
-                <Image source={{uri: post.imageUrl}} 
-                    style={styles.postImage}/>
+              <View style={{ flex: 1 }}>
+                <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
               </View>
             </Pressable>
           ))}

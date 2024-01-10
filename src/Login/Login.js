@@ -58,6 +58,8 @@ function Login({setUser}){
                         onChangeText={onChangeUsername}
                         value={email}
                         placeholder='Email'
+                        autoCapitalize='none'
+
                     />
                     <TextInput
                         style={styles.input}

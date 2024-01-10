@@ -119,9 +119,9 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {user ? <Main /> : <Welcome setUser={setUser}/>}
-    </SafeAreaView>      
+    </View>      
 
   );
 }

@@ -3,19 +3,41 @@ import api from '../api/axiosConfig'
 import { useEffect, useState } from "react";
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
+
+const formatTime = (dateString) => {
+  const options = {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+    timeZone: 'Europe/Istanbul', // Set the desired time zone
+  };
+
+  const formattedTime = new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
+  return formattedTime;
+};
+
+const formatDate = (dateString) => {
+  const options = { weekday: 'short', month: 'short', day: 'numeric' };
+  const formattedDate = new Date(dateString).toLocaleDateString('en-US', options);
+  return formattedDate;
+};
 
 
-
-function HomeScreen() {
+function HomeScreen(props) {
   const [text, onChangeText] = useState('Search by event or club...');
   const [posts, setPosts] = useState([])
   const [openedEvent, setOpenedEvent] = useState(null)
+  const isFocused = useIsFocused();
+
+  const navigation = useNavigation();
 
   const logo = {
     uri: 'https://reactnative.dev/img/tiny_logo.png',
   };
 
   useEffect(() => {
+    console.log("Mounting home")
     // Perform GET request when the component mounts
     api.get('/Event')
       .then((response) => {
@@ -27,15 +49,10 @@ function HomeScreen() {
         // Handle any errors here
         console.error('Error:', error);
       });
-  }, []);
+  }, [props, isFocused]);
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        onChangeText={onChangeText}
-        value={text}
-      />
       <View 
         style={{flexDirection: 'row', justifyContent: 'space-around', marginVertical: 10}}  
       >   
@@ -50,29 +67,31 @@ function HomeScreen() {
       <View style={{ flex: 1, height: '90%' }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
           {posts.map((post, index) => (
-            <Pressable key={index} style={{ flexDirection: 'row', width: '95%', justifyContent: 'center', margin: 10, padding: 10, backgroundColor: 'black', borderRadius: 10 }}>
+            <TouchableOpacity 
+              onPress={() => navigation.navigate('EventInfo', { post: post})} 
+              key={index} style={{ flexDirection: 'row', width: '95%', justifyContent: 'center', margin: 10, padding: 10, backgroundColor: 'black', borderRadius: 10 }}>
               <View style={{ flex: 1, justifyContent: 'space-between' }}>
                 <View>
-                  <Text style={styles.postDate}>21:30, SNA A43, Wed, Oct 11</Text>
+                  <Text style={styles.postDate}>{formatTime(post.event_date)}, {post.location}</Text>
+                  <Text style={styles.postDate}>{formatDate(post.event_date)}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 5 }}>
                     <Ionicons name="person-outline" color={'white'} size={10} />
-                    <Text style={styles.participantCount}>  147</Text>
+                    <Text style={styles.participantCount}>{post.users_joining.length}</Text>
                   </View>
                 </View>
                 <View style={{ marginTop: 0 }}>
                   <Text style={styles.postTitle}>{post.title}</Text>
                   <Text style={styles.postTitle}>{post.description}</Text>
-                  <Text style={styles.postDate}>KU Music Club</Text>
+                  <Text style={styles.postDate}>{post.ownerId}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', marginRight: 20 }}>
                   <Text style={styles.postParticipants}>unal, gokber, abdulla and others are joining</Text>
-                  <Ionicons name="bookmark-outline" color={'red'} size={20} />
                 </View>
               </View>
               <View style={{ flex: 1 }}>
                 <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
               </View>
-            </Pressable>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>

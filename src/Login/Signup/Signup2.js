@@ -62,7 +62,6 @@ function Signup2({setContent, setUserInfo}){
                     />
                     <Text style={styles.checkBoxText}>I agree with Terms & Conditions</Text>
                 </View>
-                
                 <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                     <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>

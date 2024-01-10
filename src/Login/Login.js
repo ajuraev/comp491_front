@@ -13,10 +13,13 @@ function Login({setUser}){
             password: password,  // Replace with the actual password
         };
           
+        var token;
+
         api.post('/Event/AppLogin', loginData)
         .then((response) => {
             // Handle the successful response here
             console.log('Login Successful:', response.data);
+            token = response.data.message
             api.get('/Event/loggedUser', {
                 params: {
                   token: response.data.message,
@@ -24,7 +27,7 @@ function Login({setUser}){
             })
             .then((response) => {
                 console.log('Data:', response.data);
-                setUser(response.data)
+                setUser({...response.data, token: token})
             })
             .catch((error) => {
                 console.error('Error:', error);

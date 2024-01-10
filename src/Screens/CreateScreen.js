@@ -3,7 +3,10 @@ import { useState } from 'react';
 import { KeyboardAvoidingView } from 'react-native';
 import { Camera, CameraType } from 'expo-camera';
 import api from '../api/axiosConfig'
+import DateTimePicker from '@react-native-community/datetimepicker';
+import CheckBox from 'expo-checkbox';
 
+import { format } from 'date-fns';
 
 import * as ImagePicker from 'expo-image-picker';
 import CameraScreen from './CameraScreen';
@@ -12,11 +15,18 @@ const { StatusBarManager } = NativeModules;
 
 
 
-function CreateScreen() {
+function CreateScreen({user}) {
     const [title, onChangeTitle] = useState('Title');
     const [description, onChangeDescription] = useState('Description');
+    const [location, onChangeLocation] = useState('Location');
+    const [price, onChangePrice] = useState(-1);
     const [image, setImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [chosenDate, setChosenDate] = useState(null);
+    const [showTimePicker, setShowTimePicker] = useState(false);
+    const [isPrivate, setIsPrivate] = useState(false);
+    const [maxAttendees, setMaxAttendees] = useState(-1);
 
 
     const [startCamera,setStartCamera] = useState(false)
@@ -37,24 +47,52 @@ function CreateScreen() {
       formData.append('eventImg', image)
       formData.append('eventTitle', title);
       formData.append('eventDescription', description);
-      formData.append('location', 'Some location');
+      formData.append('location', location);
+      formData.append('maxPeople', maxAttendees);
+      formData.append('isPublic', !isPrivate);
+      formData.append('price', price);
+      formData.append('eventDate', chosenDate.toISOString().replace(/\.\d+/, ''));
+      formData.append('token', user.token);
 
       console.log(formData)
 
-      api.post(`/event`, formData, {
+      api.post(`/Event`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
       })
       .then(response => {
-          //console.log(response.data);
+          console.log(response.data);
       })
       .catch(error => {
           if(error.response.data.message === 'No file uploaded.'){
           }
-          //console.log(error.response.data.message);
+          console.log(error.response.data.message);
       });
     }
+
+    const handleDateChange = (event, selectedDate) => {
+      setShowDatePicker(false);
+      if (selectedDate) {
+        setChosenDate(selectedDate);
+      }
+    };
+
+    const handleTimeChange = (event, selectedTime) => {
+      setShowTimePicker(false);
+      if (selectedTime) {
+        setChosenDate((prevDate) => {
+          // Update only the time part of the date
+          return new Date(
+            prevDate.getFullYear(),
+            prevDate.getMonth(),
+            prevDate.getDate(),
+            selectedTime.getHours(),
+            selectedTime.getMinutes()
+          );
+        });
+      }
+    };
 
     const pickImage = async () => {
       // No permissions request is necessary for launching the image library
@@ -108,49 +146,20 @@ function CreateScreen() {
                       <Text style={{
                         fontSize: 16,
                         color: '#00adb5',
-                        fontFamily: 'HK Grotesk'
+                        fontFamily: 'Montserrat_400Regular'
                       }}>Cancel</Text>
                     </TouchableOpacity>
-                    <Text style={styles.text}>CREATE</Text>
+                    <Text style={styles.text}>CREATE EVENT</Text>
                     <TouchableOpacity onPress={postEvent}>
                       <Text style={{
                         fontSize: 16,
                         color: '#00adb5',
-                        fontFamily: 'HK Grotesk'
+                        fontFamily: 'Montserrat_400Regular'
                         }}>
                         Publish
                       </Text>
                     </TouchableOpacity>
-                  </View>
-                  <View style={{width: '90%',flexDirection: 'row', paddingVertical: 10}}>
-                    <TouchableOpacity style={{
-                      borderWidth: 2,
-                      borderColor: '#00adb5',
-                      paddingHorizontal: 20,
-                      paddingVertical: 10,
-                      backgroundColor: 'white',
-                      borderRadius: 5,
-                      marginRight: 10
-                    }}>
-                        <Text style={{
-                          fontSize: 16,
-                          fontFamily: 'HK Grotesk',
-                        }}>Post</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{
-                      borderWidth: 2,
-                      borderColor: '#00adb5',
-                      paddingHorizontal: 20,
-                      paddingVertical: 10,
-                      backgroundColor: 'white',
-                      borderRadius: 5
-                    }}>
-                        <Text style={{
-                          fontSize: 16,
-                          fontFamily: 'HK Grotesk'
-                        }}>Event</Text>
-                    </TouchableOpacity>
-                  </View>
+                  </View>                  
                   <View style={{width: '90%'}}>
                   <TextInput
                     style={styles.input}
@@ -162,9 +171,63 @@ function CreateScreen() {
                     onChangeText={onChangeDescription}
                     value={description}
                   />
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={onChangeLocation}
+                    value={location}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={onChangePrice}
+                    value={price}
+                  />
+                  <TouchableOpacity 
+                    style={styles.button}
+                    onPress={() => setShowDatePicker(true)}>
+                    <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>
+                      {chosenDate === null ? 'Pick Date' : format(chosenDate, 'MM/dd/yyyy')}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.button}
+                    onPress={() => setShowTimePicker(true)}>
+                    <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>
+                      {chosenDate === null ? 'Pick Time' : format(chosenDate, 'hh:mm a')}
+                    </Text>
+                  </TouchableOpacity>
+                  {showDatePicker && (
+                    <DateTimePicker
+                      mode="date"
+                      value={chosenDate || new Date()}
+                      onChange={handleDateChange}
+                    />
+                  )}
+                  {showTimePicker && (
+                    <DateTimePicker
+                      mode="time"
+                      value={chosenDate || new Date()}
+                      onChange={handleTimeChange}
+                    />
+                  )}
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Max Attendees (-1 for no limit)"
+                    keyboardType="numeric"
+                    value={maxAttendees === -1 ? 'No Limit' : maxAttendees.toString()}
+                    onChangeText={(text) => {
+                      if (text.toLowerCase() === 'no limit') {
+                        setMaxAttendees(-1);
+                      } else {
+                        setMaxAttendees(parseInt(text, 10) || 0);
+                      }
+                    }}
+                  />
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                    <CheckBox value={isPrivate} onValueChange={() => setIsPrivate(!isPrivate)} />
+                    <Text style={{ ...styles.text, fontSize: 14, color: 'white', marginLeft: 10 }}>Make Private</Text>
                   </View>
-
-                  {image && <Image source={{ uri: image }} style={{aspectRatio: 1, width: '80%', margin: 10}} />}
+                  </View>
+                  {image && <Image source={{ uri: image }} style={{aspectRatio: 1, width: '75%', margin: 20, borderRadius: 10}} />}
                   <TouchableOpacity onPress={pickImage} style={styles.button}>
                     <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>Pick image</Text>
                   </TouchableOpacity>
@@ -190,6 +253,7 @@ const styles = StyleSheet.create({
         height: 40,   // Set a fixed height or adjust as needed
         borderColor: '#00adb5',
         backgroundColor: 'white',
+        fontFamily: 'Montserrat_400Regular',
         color: 'grey',
         borderWidth: 2,
         borderRadius: 10,
@@ -209,7 +273,7 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 16,
         color: '#00adb5',
-        fontFamily: 'HK Grotesk'
+        fontFamily: 'Montserrat_400Regular'
       },
     postImage: {
         aspectRatio: 1, // 1:1 aspect ratio (square)

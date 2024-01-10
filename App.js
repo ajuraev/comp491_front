@@ -4,9 +4,13 @@ import React, { useState } from 'react';
 import { useCallback } from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './src/Screens/HomeScreen'
 import CreateScreen from './src/Screens/CreateScreen';
 import ProfileScreen from './src/Screens/ProfileScreen';
+import SearchScreen from './src/Screens/SearchScreen';
+import FavoriteScreen from './src/Screens/FavoriteScreen';
+import EventInfoScreen from './src/Screens/EventInfoScreen';
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
 import {  useFonts, Montserrat_400Regular, Montserrat_700Bold } from '@expo-google-fonts/montserrat';
@@ -28,6 +32,7 @@ const MyTheme = {
 };
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 
 export default function App() {
@@ -37,23 +42,63 @@ export default function App() {
   const [user, setUser] = useState(false)
  
   const Main = () => {
+    const HomeStack = ({user}) => {
+      return (
+        <Stack.Navigator headerMode="none">
+          <Stack.Screen name="Home" component={HomeScreen} initialParams={{ user: user }}/>
+          <Stack.Screen name="EventInfo" component={EventInfoScreen} initialParams={{ user: user}}/>
+        </Stack.Navigator>
+      );
+    };
+
+
+
     return <NavigationContainer theme={MyTheme}>
             <Tab.Navigator screenOptions={{
               headerShown: false,
               tabBarShowLabel: false
             }}
             >
-              <Tab.Screen name="Home" component={HomeScreen} options={{
-                tabBarIcon: ({ color, size }) => (
-                  <Ionicons name="home" color={color} size={size} />
-                ),
-              }}/>
-              <Tab.Screen name="Create" component={CreateScreen} 
+              <Tab.Screen
+                name="Home"
+                options={{
+                  tabBarIcon: ({ color, size }) => (
+                    <Ionicons name="home" color={color} size={size} />
+                  ),
+                }}
+              >
+                {(props) => <HomeStack {...props} user={user} />}
+              </Tab.Screen>
+              <Tab.Screen
+                name="Search"
+                options={{
+                  tabBarIcon: ({ color, size }) => (
+                    <Ionicons name="search" color={color} size={size} />
+                  ),
+                }}
+              >
+                {(props) => <SearchScreen {...props} user={user} />}
+              </Tab.Screen>
+              <Tab.Screen
+                name="Create"
                 options={{
                   tabBarIcon: ({ color, size }) => (
                     <Ionicons name="add-circle" color={color} size={size} />
                   ),
-              }}/>
+                }}
+              >
+                {(props) => <CreateScreen {...props} user={user} />}
+              </Tab.Screen>
+              <Tab.Screen
+                name="Favorites"
+                options={{
+                  tabBarIcon: ({ color, size }) => (
+                    <Ionicons name="heart" color={color} size={size} />
+                  ),
+                }}
+              >
+                {(props) => <FavoriteScreen {...props} user={user} />}
+              </Tab.Screen>
               <Tab.Screen
                 name="Profile"
                 options={{
@@ -64,7 +109,6 @@ export default function App() {
               >
                 {(props) => <ProfileScreen {...props} user={user} />}
               </Tab.Screen>
-
             </Tab.Navigator>
           </NavigationContainer>
   }

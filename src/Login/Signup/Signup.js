@@ -7,7 +7,7 @@ const { StatusBarManager } = NativeModules;
 
 
 function Signup({setUser}){
-    const [content, setContent] = useState('1')
+    const [content, setContent] = useState('2')
     const [userInfo, setUserInfo] = useState({})
 
     const Content = () => {

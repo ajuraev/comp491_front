@@ -27,6 +27,7 @@ const formatDate = (dateString) => {
 function HomeScreen(props) {
   const [text, onChangeText] = useState('Search by event or club...');
   const [posts, setPosts] = useState([])
+  const [content, setContent] = useState(0)
   const [openedEvent, setOpenedEvent] = useState(null)
   const isFocused = useIsFocused();
 
@@ -52,17 +53,45 @@ function HomeScreen(props) {
       });
   }, [props, isFocused]);
 
+  const handleAll = () => {
+    setContent(0)
+    api.get(`Event/PostsbyToken?token=${user.token}`)
+    .then((response) => {
+      // Handle the successful response here
+      setPosts(response.data)
+      console.log('Data:', response.data);
+    })
+    .catch((error) => {
+      // Handle any errors here
+      console.error('Error:', error);
+    });
+  }
+
+  const handleFriends = () => {
+    setContent(1)
+    api.get(`Event/PostsOfFriends?token=${user.token}`)
+      .then((response) => {
+        // Handle the successful response here
+        setPosts(response.data)
+        console.log('Data:', response.data);
+      })
+      .catch((error) => {
+        // Handle any errors here
+        console.error('Error:', error);
+      });
+  }
+
   return (
     <View style={styles.container}>
       <View 
-        style={{flexDirection: 'row', justifyContent: 'space-around', marginVertical: 10}}  
+        style={{flexDirection: 'row', justifyContent: 'space-around', marginTop: 10}}  
       >   
-        <Pressable style={styles.button}>
-          <Text style={styles.text}>For You</Text>
-        </Pressable>
-        <Pressable style={styles.button}>
-          <Text style={styles.text}>All</Text>
-        </Pressable>
+        <TouchableOpacity onPress={handleAll} style={styles.button}>
+          <Text style={{...styles.text, textDecorationLine: content == 0 ? 'underline' : 'none', }}>All</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleFriends} style={styles.button}>
+        <Text style={{...styles.text, textDecorationLine: content == 1 ? 'underline' : 'none', }}>Friends</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.divider}/>
       <View style={{ flex: 1, height: '90%' }}>
@@ -83,9 +112,6 @@ function HomeScreen(props) {
                 <View style={{ marginTop: 0 }}>
                   <Text style={styles.postTitle}>{post.title}</Text>
                   <Text style={styles.postDate}>{post.ownerId}</Text>
-                </View>
-                <View style={{ flexDirection: 'row', marginRight: 20 }}>
-                  <Text style={styles.postParticipants}>unal, gokber, abdulla and others are joining</Text>
                 </View>
               </View>
               <View style={{ flex: 1 }}>

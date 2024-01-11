@@ -109,7 +109,7 @@ export default function App() {
                   ),
                 }}
               >
-                {(props) => <ProfileScreen {...props} user={user} />}
+                {(props) => <ProfileScreen {...props} user={user} setUser={setUser} />}
               </Tab.Screen>
             </Tab.Navigator>
           </NavigationContainer>

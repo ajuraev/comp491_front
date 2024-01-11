@@ -5,9 +5,11 @@ import { useState, useEffect } from "react";
 
 
 
-function Signup3({setContent, userInfo, setUser}){
+
+function Signup3({setContent, userInfo, setUser, userImage}){
     const [enteredCode, setEnteredCode] = useState('')
     const [code, setCode] = useState(0)
+
 
     useEffect(() => {
         updateCode()
@@ -46,6 +48,7 @@ function Signup3({setContent, userInfo, setUser}){
         formData.append('username', userInfo.username);
         formData.append('displayName', userInfo.displayName);
         formData.append('password', userInfo.password);
+        formData.append('profileImg', userImage);
 
         api.post('/Event/user', formData, {
         headers: {
@@ -55,7 +58,11 @@ function Signup3({setContent, userInfo, setUser}){
         .then((response) => {
             // Handle the successful response here
             console.log('Data:', response.data);
-            setUser(response.data);
+            //setUser(response.data);
+            setContent('login');
+
+
+
         })
         .catch((error) => {
             // Handle any errors here

@@ -82,7 +82,6 @@ function HomeScreen(props) {
                 </View>
                 <View style={{ marginTop: 0 }}>
                   <Text style={styles.postTitle}>{post.title}</Text>
-                  <Text style={styles.postTitle}>{post.description}</Text>
                   <Text style={styles.postDate}>{post.ownerId}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', marginRight: 20 }}>

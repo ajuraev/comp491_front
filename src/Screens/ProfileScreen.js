@@ -59,17 +59,18 @@ function ProfileScreen(props){
             </View>
             <View style={styles.container2}>
                 <Image source={{uri: user.profileImageUrl}} style={styles.profileImg}/>
-                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center'}}>
-                    <View style={{alignItems: 'center'}}>
-                        <Text style={styles.textNum}>0</Text>
-                        <Text style={styles.textFollow}>followers</Text>
+                <View style={{flex:1,flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', backgroundColor:'yellow'}}>
+                    <View style={{width:'100%', flexDirection:'row', alignItems: 'center', justifyContent: 'space-around'}}>
+                        <View style={{alignItems: 'center'}}>
+                            <Text style={styles.textNum}>{user.friends.length}</Text>
+                            <Text style={styles.textFollow}>friends</Text>
+                        </View>
+                        <TouchableOpacity  style={{...styles.button, backgroundColor: 'white'}}>
+                                <Text style={{ ...styles.text, fontSize: 14, color: '#1e9bd4' }}>Edit</Text>
+                        </TouchableOpacity>
                     </View>
-                    <View style={{alignItems: 'center'}}>
-                        <Text style={styles.textNum}>0</Text>
-                        <Text style={styles.textFollow}>following</Text>
-                    </View>
-                    <TouchableOpacity  style={{...styles.button, backgroundColor: 'white'}}>
-                            <Text style={{ ...styles.text, fontSize: 14, color: '#1e9bd4' }}>Edit</Text>
+                    <TouchableOpacity  style={{...styles.button, marginTop:10, backgroundColor: 'white'}}>
+                            <Text style={{ ...styles.text, fontSize: 14, color: '#1e9bd4' }}>Friend Requests</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -136,7 +137,8 @@ const styles = StyleSheet.create({
     },
     container2: {
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor:'green'
     },
     input: {
         width: '100%', // Adjust width as needed
@@ -158,7 +160,6 @@ const styles = StyleSheet.create({
     button: {
         alignItems: 'center',
         justifyContent: 'center',
-        margin: 10,
         paddingVertical: 12,
         paddingHorizontal: 22,
         borderRadius: 10,

@@ -5,6 +5,7 @@ import { Camera, CameraType } from 'expo-camera';
 import api from '../api/axiosConfig'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CheckBox from 'expo-checkbox';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 
 import { format } from 'date-fns';
 
@@ -16,9 +17,9 @@ const { StatusBarManager } = NativeModules;
 
 
 function CreateScreen({user}) {
-    const [title, onChangeTitle] = useState('Title');
-    const [description, onChangeDescription] = useState('Description');
-    const [location, onChangeLocation] = useState('Location');
+    const [title, onChangeTitle] = useState('');
+    const [description, onChangeDescription] = useState('');
+    const [location, onChangeLocation] = useState('');
     const [price, onChangePrice] = useState(-1);
     const [image, setImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
@@ -27,6 +28,8 @@ function CreateScreen({user}) {
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [isPrivate, setIsPrivate] = useState(false);
     const [maxAttendees, setMaxAttendees] = useState(-1);
+    const navigation = useNavigation();
+
 
 
     const [startCamera,setStartCamera] = useState(false)
@@ -34,14 +37,26 @@ function CreateScreen({user}) {
     const __startCamera = async () => {
         const {status} = await Camera.requestCameraPermissionsAsync()
      if(status === 'granted'){
-       // do something
        setStartCamera(true)
      }else{
        Alert.alert("Access denied")
      }
     }
 
+    const cancelPost = () => {
+      
+      onChangeTitle("");
+      onChangeDescription("");
+      onChangeLocation("");
+      onChangePrice("");
+      setMaxAttendees("");
+      setImage(null);
+      setChosenDate(null);
+      
 
+      navigation.navigate('Home');
+
+    }
     const postEvent = () => {
       const formData = new FormData();
       formData.append('eventImg', image)
@@ -53,6 +68,7 @@ function CreateScreen({user}) {
       formData.append('price', price);
       formData.append('eventDate', chosenDate.toISOString().replace(/\.\d+/, ''));
       formData.append('token', user.token);
+      navigation.navigate('Home');
 
       console.log(formData)
 
@@ -63,6 +79,8 @@ function CreateScreen({user}) {
       })
       .then(response => {
           console.log(response.data);
+          cancelPost();
+
       })
       .catch(error => {
           if(error.response.data.message === 'No file uploaded.'){
@@ -142,7 +160,7 @@ function CreateScreen({user}) {
             ) : (
                 <View style={{ flex: 1, alignItems: 'center'}}>
                   <View style={{width: '90%',flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10}}>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={cancelPost}>
                       <Text style={{
                         fontSize: 16,
                         color: '#00adb5',
@@ -164,21 +182,27 @@ function CreateScreen({user}) {
                   <TextInput
                     style={styles.input}
                     onChangeText={onChangeTitle}
+                    placeholder="Title"
                     value={title}
                   />
                   <TextInput
                     style={styles.input}
                     onChangeText={onChangeDescription}
+                    placeholder="Description"
+                    multiline={true} 
                     value={description}
                   />
                   <TextInput
                     style={styles.input}
                     onChangeText={onChangeLocation}
+                    placeholder="Location"
+
                     value={location}
                   />
                   <TextInput
                     style={styles.input}
                     onChangeText={onChangePrice}
+                    placeholder="Price"
                     value={price}
                   />
                   <TouchableOpacity 
@@ -211,11 +235,11 @@ function CreateScreen({user}) {
                   )}
                   <TextInput
                     style={styles.input}
-                    placeholder="Max Attendees (-1 for no limit)"
+                    placeholder="Max Attendees"
                     keyboardType="numeric"
-                    value={maxAttendees === -1 ? 'No Limit' : maxAttendees.toString()}
+                    value={maxAttendees === -1 ? '' : maxAttendees.toString()}
                     onChangeText={(text) => {
-                      if (text.toLowerCase() === 'no limit') {
+                      if (text.toLowerCase() === '') {
                         setMaxAttendees(-1);
                       } else {
                         setMaxAttendees(parseInt(text, 10) || 0);

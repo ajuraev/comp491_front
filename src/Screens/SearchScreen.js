@@ -118,9 +118,9 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat_400Regular'
     },
     userSurname: {
-    fontSize: 12,
-    color: 'white',
-    fontFamily: 'Montserrat_400Regular'
+        fontSize: 12,
+        color: 'white',
+        fontFamily: 'Montserrat_400Regular'
     },
     profileImage: {
         aspectRatio: 1, // 1:1 aspect ratio (square)

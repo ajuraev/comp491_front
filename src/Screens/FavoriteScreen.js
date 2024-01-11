@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Ionicons } from '@expo/vector-icons';
 import api from '../api/axiosConfig'
 import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { set } from "date-fns";
 
 
 const formatTime = (dateString) => {
@@ -30,9 +31,11 @@ function FavoriteScreen(props){
     const [favouriteEvents, setFavouriteEvents] = useState([])
     const [clubs, setClubs] = useState([])
     const [friends, setFriends] = useState([])
-    const [content, setContent] = useState(0)
+    const [content, setContent] = useState(1)
     const user = props.user
     const navigation = useNavigation();
+    const isFocused = useIsFocused();
+
 
     const EventsList = ({posts}) => {  
         return(
@@ -68,9 +71,36 @@ function FavoriteScreen(props){
         )
     }
 
+    const UsersList = ({users}) => {
+
+        return (
+                <View style={{ width: '100%'}}>
+                    <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center'}}>
+                    {users.map((user, index) => (
+                        <TouchableOpacity  
+                            onPress={() => navigation.navigate('OtherProfile', {email: user.email})}
+                            key={index} style={{ flexDirection: 'row', width: '100%',   padding: 10, borderRadius: 10 }}>
+                            <View style={{width: '10%', justifyContent: 'center'}}>
+                                <Image source={{ uri: user.profileImageUrl }} style={styles.profileImage} />
+                            </View>
+                            <View style={{flex: 1, marginLeft: 10}}>
+                                <Text style={styles.userDisplayName}>{user.displayName}</Text>
+                                <Text style={styles.username}>{user.username}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    ))}
+                    </ScrollView>
+                </View>
+        )
+    }
+
     const Content = () => {
         if(content == 0){
             return <EventsList posts={favouriteEvents}/>
+        }else if(content == 1){
+            return <UsersList users={clubs}/>
+        }else if(content == 2){
+            return <UsersList users={friends}/>
         }
     }
 
@@ -84,7 +114,26 @@ function FavoriteScreen(props){
           .catch((error) => {
             console.error('Error:', error);
           });
-      }, []);
+
+        api.get(`/Event/FollowedClubs?token=${user.token}`)
+        .then((response) => {
+            setClubs(response.data)
+            console.log('Data clubs:', response.data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+
+        api.get(`/Event/Friends?token=${user.token}`)
+        .then((response) => {   
+            setFriends(response.data)
+            console.log('Data clubs:', response.data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+        
+      }, [props, isFocused]);
 
     return(
         <View style={styles.container}> 
@@ -121,6 +170,7 @@ function FavoriteScreen(props){
                         </Text>
                     </TouchableOpacity>
                 </View>
+                <View style={styles.divider}/>
                 <Content/>
             </View>
         </View>
@@ -144,6 +194,7 @@ const styles = StyleSheet.create({
     divider: {
       marginTop: '3%',
       borderBottomColor: '#393e46',
+      marginBottom: 10,
       borderBottomWidth: 1,
       alignSelf:'stretch'
     },
@@ -197,6 +248,22 @@ const styles = StyleSheet.create({
         width: '100%',  // You can adjust the width as needed
         alignSelf: 'center', // Center the image horizontally
         borderRadius: 5
+    },
+    userDisplayName: {
+        fontSize: 16,
+        color: 'white',
+        fontFamily: 'Montserrat_400Regular'
+    },
+    username: {
+        fontSize: 12,
+        color: 'white',
+        fontFamily: 'Montserrat_400Regular'
+    },
+    profileImage: {
+        aspectRatio: 1, // 1:1 aspect ratio (square)
+        width: '100%',  // You can adjust the width as needed
+        alignSelf: 'center', // Center the image horizontally
+        borderRadius: 100
     }
     });
 

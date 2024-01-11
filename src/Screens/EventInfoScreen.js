@@ -37,13 +37,25 @@ function EventInfoScreen() {
 
   const [hasJoined, setHasJoined] = useState()
   const [hasFavourited, setHasFavourited] = useState()
+  const [hasFollowed, setHasFollowed] = useState()
+  const [hasPending, setHasPending] = useState()
+
 
   useEffect(() => {
     if (post && user) {
       // Check if the user has joined
+      console.log("User in info screen",user)
+      console.log("Event info screen", post)
       const isUserJoined = post.users_joining.includes(user.username);
+      
       setHasJoined(isUserJoined);
   
+      const isFollowed = user.friends.includes(post.ownerId); 
+      setHasFollowed(isFollowed)
+
+      const isPending = user.out_requests.includes(post.ownerId);
+      setHasPending(isPending)
+
       // Check if the user has favorited
       const isUserFavourited = post.users_liked.includes(user.username);
       setHasFavourited(isUserFavourited);
@@ -98,6 +110,40 @@ function EventInfoScreen() {
     }
   }
 
+  const handleFollowUser = (token, email) => {
+
+    console.log(hasFollowed, token, email)
+    if(hasFollowed){
+      api.delete(`/Event/RemoveFriend?token=${token}&email=${email}`)
+      .then((response) => {
+        console.log("Success:", response.data);
+        setHasFollowed(!hasFollowed)
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    }else if(hasPending){
+      api.post(`/Event/CancelFriendRequest?token=${token}&email=${email}`)
+      .then((response) => {
+        console.log("Success:", response.data);
+        setHasPending(!hasPending)
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    }else {
+      api.post(`/Event/SendFriendRequest?token=${token}&email=${email}`)
+      .then((response) => {
+        console.log("Success:", response.data);
+        setHasPending(!hasFollowed)
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    }
+    
+  }
+
   const updateUser = (token) => {
     api.get('/Event/loggedUser', {
       params: {
@@ -125,11 +171,11 @@ function EventInfoScreen() {
         <Text style={styles.title}>{post.title}</Text>
         <TouchableOpacity onPress={() => navigation.navigate('OtherProfile', {email: post.ownerId})} style={{...styles.button, flexDirection: 'row', justifyContent: 'space-between'}}>
           <View style={{flexDirection: 'row'}}>
-            <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png' }} style={styles.avatarImage} />
+            {/* <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png' }} style={styles.avatarImage} /> */}
             <Text style={{ ...styles.text, fontSize: 14, color: 'black' }}>{post.ownerId}</Text>
           </View>
-          <TouchableOpacity style={styles.followButton}>
-            <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>Follow</Text>
+          <TouchableOpacity onPress={() => handleFollowUser(user.token,post.ownerId)} style={{...styles.followButton, backgroundColor: hasFollowed ? 'red' : (hasPending ? 'yellow' :'#3659e3')}}>
+            <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>{hasFollowed ? "Unfollow" : (hasPending ? "Pending" : "Follow")}</Text>
           </TouchableOpacity>
         </TouchableOpacity>
         <View style={{flexDirection: 'row', marginTop: 20}}>

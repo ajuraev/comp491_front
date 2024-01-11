@@ -30,6 +30,7 @@ function HomeScreen(props) {
   const [openedEvent, setOpenedEvent] = useState(null)
   const isFocused = useIsFocused();
 
+  const user = props.route.params.user
   const navigation = useNavigation();
 
   const logo = {
@@ -38,8 +39,8 @@ function HomeScreen(props) {
 
   useEffect(() => {
     console.log("Mounting home")
-    // Perform GET request when the component mounts
-    api.get('/Event')
+    console.log("User in homescreen", user)
+    api.get(`Event/PostsbyToken?token=${user.token}`)
       .then((response) => {
         // Handle the successful response here
         setPosts(response.data)

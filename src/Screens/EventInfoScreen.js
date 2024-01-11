@@ -46,7 +46,7 @@ function EventInfoScreen() {
       // Check if the user has joined
       console.log("User in info screen",user)
       console.log("Event info screen", post)
-      const isUserJoined = post.users_joining.includes(user.username);
+      const isUserJoined = post.users_joining.includes(user.email);
       
       setHasJoined(isUserJoined);
   
@@ -57,7 +57,7 @@ function EventInfoScreen() {
       setHasPending(isPending)
 
       // Check if the user has favorited
-      const isUserFavourited = post.users_liked.includes(user.username);
+      const isUserFavourited = post.users_liked.includes(user.email);
       setHasFavourited(isUserFavourited);
     }
   }, [post, user]);
@@ -159,14 +159,33 @@ function EventInfoScreen() {
     });
   }
 
+  const handleDelete = () => {
+    
+    api.delete(`/Event/post?postId=${post.postId}`)
+    .then((response) => {
+        console.log('Data:', response.data);
+        navigation.navigate('Home')
+      })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+  }
+
   return (
     <View style={styles.container}>
       <View style={{width: '90%'}}>
-        <TouchableOpacity 
-          onPress={() => navigation.navigate('Home')} 
-          style={{marginVertical: 10}}> 
-          <Ionicons name="arrow-back" color={'white'} size={40} />
-        </TouchableOpacity>
+        <View style={{flexDirection:'row', justifyContent: 'space-between'}}>
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Home')} 
+            style={{marginVertical: 10}}> 
+            <Ionicons name="arrow-back" color={'white'} size={40} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={user.email == post.ownerId ? handleDelete : null} 
+            style={{marginVertical: 10}}> 
+            <Ionicons name="trash" color={user.email == post.ownerId ? 'white' : 'black'} size={40} />
+          </TouchableOpacity>
+        </View>
         <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
         <Text style={styles.title}>{post.title}</Text>
         <TouchableOpacity onPress={() => navigation.navigate('OtherProfile', {email: post.ownerId})} style={{...styles.button, flexDirection: 'row', justifyContent: 'space-between'}}>

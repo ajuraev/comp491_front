@@ -26,10 +26,10 @@ const formatTime = (dateString) => {
 
 function ProfileScreen(props){
     const [posts, setPosts] = useState([])
-    const [friendRequests, setFriendRequests] = useState([])
     const isFocused = useIsFocused();
     const navigation = useNavigation();
     const user = props.user
+    const setUser = props.setUser
     
     const [content, setContent] = useState(0)
 
@@ -47,19 +47,6 @@ function ProfileScreen(props){
             // Handle any errors here
             console.error('Error:', error);
           });
-        
-        api.get(`/Event/InFriendRequests?token=${user.token}`)
-        .then((response) => {
-            // Handle the successful response here
-            setFriendRequests(response.data)
-            console.log('Data posts in profile:', response.data);
-        })
-        .catch((error) => {
-            // Handle any errors here
-            console.error('Error:', error);
-        });
-
-
     }, [props, isFocused]);
 
     const Content = () => {
@@ -67,11 +54,60 @@ function ProfileScreen(props){
         if(content == 0){
             return <Profile/>
         }else if(content == 1){
-            return <FriendRequests/>
+            return <FriendRequests user={user}/>
         }
     }
 
-    const FriendRequests = () => {
+    
+
+    const FriendRequests = ({user}) => {
+        const [friendRequests, setFriendRequests] = useState([])
+
+        const handleAccept = (friendRequest) => {
+            api.post(`/Event/AcceptFriendRequest?token=${user.token}&email=${friendRequest.email}`)
+            .then((response) => {
+                // Handle the successful response here
+                updateFriendRequest()
+                console.log('Data posts in profile:', response.data);
+            })
+            .catch((error) => {
+                // Handle any errors here
+                console.error('Error:', error);
+            });
+
+        }
+    
+        const updateFriendRequest = () => {
+            api.get(`/Event/InFriendRequests?token=${user.token}`)
+                .then((response) => {
+                    // Handle the successful response here
+                    setFriendRequests(response.data)
+                    console.log('Data friend requests in profile:', response.data);
+                })
+                .catch((error) => {
+                    // Handle any errors here
+                    console.error('Error:', error);
+                });
+        }
+
+        const handleReject = (friendRequest) => {
+            
+            api.post(`/Event/DenyFriendRequest?token=${user.token}&email=${friendRequest}`)
+            .then((response) => {
+                // Handle the successful response here
+                updateFriendRequest()
+                console.log('Data posts in profile:', response.data);
+            })
+            .catch((error) => {
+                // Handle any errors here
+                console.error('Error:', error);
+            });
+        }
+
+        useEffect(() => {
+            updateFriendRequest()
+        }, []);
+
         return(
             <View style={{flex:1, alignItems:'center'}}>
                 <View style={{width: '90%'}}>
@@ -82,9 +118,9 @@ function ProfileScreen(props){
                         {friendRequests.map((user, index) => (
                             <TouchableOpacity  
                                 onPress={() => navigation.navigate('OtherProfile', {email: user.email})}
-                                key={index} style={{ flexDirection: 'row', width: '100%',   padding: 10, borderRadius: 10 }}>
-                                <View style={{width:'100%', flexDirection: 'row'}}>
-                                    <View style={{width: '10%', justifyContent: 'center'}}>
+                                key={index} style={{ flexDirection: 'row', justifyContent:'space-between', width: '100%',   padding: 10, borderRadius: 10 }}>
+                                <View style={{width:'70%', flexDirection: 'row', alignItems:'center'}}>
+                                    <View style={{width: '20%', justifyContent: 'center'}}>
                                         <Image source={{ uri: user.profileImageUrl }} style={styles.profileImage} />
                                     </View>
                                     <View style={{flex: 1, marginLeft: 10}}>
@@ -93,11 +129,11 @@ function ProfileScreen(props){
                                     </View>
                                 </View>
                                 <View style={{flexDirection: 'row'}}>
-                                    <TouchableOpacity style={styles.iconButton}>
-                                        <Ionicons name="check" color={"black"} size={25} />
+                                    <TouchableOpacity onPress={() => handleAccept(user)} style={{...styles.iconCheck, marginRight: 10}}>
+                                        <Ionicons name="checkmark-outline" color={"white"} size={25} />
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={styles.iconButton}>
-                                        <Ionicons name="arrow-back-outline" color={"black"} size={25} />
+                                    <TouchableOpacity onPress={() => handleReject(user)} style={styles.iconCheck}>
+                                        <Ionicons name="close-outline" color={"white"} size={25} />
                                     </TouchableOpacity>
                                 </View>
                                 
@@ -196,7 +232,7 @@ function ProfileScreen(props){
                     </TouchableOpacity>
                 )}
                 <Text style={styles.text}>@{user.username}</Text>
-                <TouchableOpacity  style={styles.iconButton}>
+                <TouchableOpacity onPress={() => setUser(null)} style={styles.iconButton}>
                     <Ionicons name="exit-outline" color={"white"} size={25}/>
                 </TouchableOpacity>
             </View>
@@ -257,6 +293,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: 12,
         paddingHorizontal: 32,
+    },
+    iconCheck: {
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     text: {
         fontSize: 16,

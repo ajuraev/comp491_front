@@ -31,7 +31,7 @@ function FavoriteScreen(props){
     const [favouriteEvents, setFavouriteEvents] = useState([])
     const [clubs, setClubs] = useState([])
     const [friends, setFriends] = useState([])
-    const [content, setContent] = useState(1)
+    const [content, setContent] = useState(0)
     const user = props.user
     const navigation = useNavigation();
     const isFocused = useIsFocused();
@@ -145,7 +145,8 @@ function FavoriteScreen(props){
                             fontSize: 16,
                             color: '#00adb5',
                             fontFamily: 'Montserrat_400Regular',
-                            paddingRight: 15
+                            paddingRight: 15,
+                            textDecorationLine: content == 0 ? 'underline' : 'none',
                             }}>
                             Events
                         </Text>
@@ -155,7 +156,8 @@ function FavoriteScreen(props){
                             fontSize: 16,
                             color: '#00adb5',
                             paddingRight: 15,
-                            fontFamily: 'Montserrat_400Regular'
+                            fontFamily: 'Montserrat_400Regular',
+                            textDecorationLine: content == 1 ? 'underline' : 'none',
                             }}>
                             Clubs
                         </Text>
@@ -164,7 +166,9 @@ function FavoriteScreen(props){
                         <Text style={{
                             fontSize: 16,
                             color: '#00adb5',
-                            fontFamily: 'Montserrat_400Regular'
+                            fontFamily: 'Montserrat_400Regular',
+                            textDecorationLine: content == 2 ? 'underline' : 'none',
+
                             }}>
                             Friends
                         </Text>

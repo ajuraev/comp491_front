@@ -1,14 +1,97 @@
-import { View, Text, StyleSheet, NativeModules, TouchableOpacity } from "react-native"
+import { View, Text, StyleSheet, NativeModules, Image, TouchableOpacity,ScrollView } from "react-native"
 const { StatusBarManager } = NativeModules;
+import { useState, useEffect } from "react";
+import { Ionicons } from '@expo/vector-icons';
+import api from '../api/axiosConfig'
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 
-function FavoriteScreen(){
+
+const formatTime = (dateString) => {
+    const options = {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false,
+      timeZone: 'Europe/Istanbul', // Set the desired time zone
+    };
+  
+    const formattedTime = new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
+    return formattedTime;
+  };
+  
+  const formatDate = (dateString) => {
+    const options = { weekday: 'short', month: 'short', day: 'numeric' };
+    const formattedDate = new Date(dateString).toLocaleDateString('en-US', options);
+    return formattedDate;
+  };
+
+
+
+function FavoriteScreen(props){
+    const [favouriteEvents, setFavouriteEvents] = useState([])
+    const [clubs, setClubs] = useState([])
+    const [friends, setFriends] = useState([])
+    const [content, setContent] = useState(0)
+    const user = props.user
+    const navigation = useNavigation();
+
+    const EventsList = ({posts}) => {  
+        return(
+            <ScrollView contentContainerStyle={{ width: '100%', flexGrow: 1, alignItems: 'center'}}>
+                {posts.map((post, index) => (
+                    <TouchableOpacity 
+                    onPress={() => navigation.navigate('EventInfo', { post: post})} 
+                    key={index} style={{ flexDirection: 'row', width: '100%', justifyContent: 'center', margin: 10, padding: 10, backgroundColor: 'black', borderRadius: 10 }}>
+                    <View style={{ flex: 1, justifyContent: 'space-between' }}>
+                        <View>
+                        <Text style={styles.postDate}>{formatTime(post.event_date)}, {post.location}</Text>
+                        <Text style={styles.postDate}>{formatDate(post.event_date)}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 5 }}>
+                            <Ionicons name="person-outline" color={'white'} size={10} />
+                            <Text style={styles.participantCount}>{post.users_joining.length}</Text>
+                        </View>
+                        </View>
+                        <View style={{ marginTop: 0 }}>
+                        <Text style={styles.postTitle}>{post.title}</Text>
+                        <Text style={styles.postTitle}>{post.description}</Text>
+                        <Text style={styles.postDate}>{post.ownerId}</Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', marginRight: 20 }}>
+                        <Text style={styles.postParticipants}>unal, gokber, abdulla and others are joining</Text>
+                        </View>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
+                    </View>
+                    </TouchableOpacity>
+                    ))}
+            </ScrollView>
+        )
+    }
+
+    const Content = () => {
+        if(content == 0){
+            return <EventsList posts={favouriteEvents}/>
+        }
+    }
+
+    useEffect(() => {
+        console.log("Mounting favouriteScreen")
+        api.get(`/Event/LikedPostsOfUser?token=${user.token}`)
+          .then((response) => {
+            setFavouriteEvents(response.data)
+            console.log('Data:', response.data);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+      }, []);
 
     return(
         <View style={styles.container}> 
-            <View style={{width: '90%', paddingTop: 25}}>
+            <View style={{width: '90%', marginTop: 20}}>
                 <Text style={styles.title}>Favorites</Text>
                 <View style={{flexDirection: 'row'}}>
-                    <TouchableOpacity onPress={null}>
+                    <TouchableOpacity onPress={() => setContent(0)}>
                         <Text style={{
                             fontSize: 16,
                             color: '#00adb5',
@@ -18,16 +101,27 @@ function FavoriteScreen(){
                             Events
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={null}>
+                    <TouchableOpacity onPress={() => setContent(1)}>
                         <Text style={{
                             fontSize: 16,
                             color: '#00adb5',
+                            paddingRight: 15,
                             fontFamily: 'Montserrat_400Regular'
                             }}>
                             Clubs
                         </Text>
                     </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setContent(2)}>
+                        <Text style={{
+                            fontSize: 16,
+                            color: '#00adb5',
+                            fontFamily: 'Montserrat_400Regular'
+                            }}>
+                            Friends
+                        </Text>
+                    </TouchableOpacity>
                 </View>
+                <Content/>
             </View>
         </View>
     )
@@ -39,7 +133,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 0,
+        paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 50,
     },
     title:{
         fontSize: 28,

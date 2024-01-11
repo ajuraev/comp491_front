@@ -11,6 +11,7 @@ import ProfileScreen from './src/Screens/ProfileScreen';
 import SearchScreen from './src/Screens/SearchScreen';
 import FavoriteScreen from './src/Screens/FavoriteScreen';
 import EventInfoScreen from './src/Screens/EventInfoScreen';
+import OtherProfileScreen from './src/Screens/OtherProfileScren'
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
 import {  useFonts, Montserrat_400Regular, Montserrat_700Bold } from '@expo-google-fonts/montserrat';
@@ -23,8 +24,8 @@ const MyTheme = {
   ...DefaultTheme,
   colors: {
     primary: 'rgb(255, 45, 85)',
-    background: '#222831',
-    card: '#222831',
+    background: 'black',
+    card: 'black',
     text: 'white',
     border: 'rgb(199, 199, 204)',
     notification: 'rgb(255, 69, 58)',
@@ -47,6 +48,7 @@ export default function App() {
         <Stack.Navigator headerMode="none">
           <Stack.Screen name="Home" component={HomeScreen} initialParams={{ user: user }}/>
           <Stack.Screen name="EventInfo" component={EventInfoScreen} initialParams={{ user: user}}/>
+          <Stack.Screen name="OtherProfile" component={OtherProfileScreen} initialParams={{ user: user}}/>
         </Stack.Navigator>
       );
     };

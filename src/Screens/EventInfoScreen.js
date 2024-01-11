@@ -123,7 +123,7 @@ function EventInfoScreen() {
         </TouchableOpacity>
         <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
         <Text style={styles.title}>{post.title}</Text>
-        <TouchableOpacity onPress={null} style={{...styles.button, flexDirection: 'row', justifyContent: 'space-between'}}>
+        <TouchableOpacity onPress={() => navigation.navigate('OtherProfile', {email: post.ownerId})} style={{...styles.button, flexDirection: 'row', justifyContent: 'space-between'}}>
           <View style={{flexDirection: 'row'}}>
             <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png' }} style={styles.avatarImage} />
             <Text style={{ ...styles.text, fontSize: 14, color: 'black' }}>{post.ownerId}</Text>
@@ -172,8 +172,8 @@ const styles = StyleSheet.create({
       flex: 1,
       flexDirection: 'column',
       alignItems: 'center',
-      paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 0,
-  },
+      paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 50,
+    },
   title:{
       fontSize: 28,
       color: 'white',

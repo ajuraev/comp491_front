@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'column',
-        paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 0,
+        paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 50,
     },
     camera: {
         flex: 1,

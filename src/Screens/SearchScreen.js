@@ -3,21 +3,24 @@ import React, { useState } from 'react';
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
 import api from '../api/axiosConfig'
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 
 
 function SearchScreen({user}) {
     const [searchQuery, setSearchQuery] = useState('');
-    const [posts, setPosts] = useState([])
+    const [users, setUsers] = useState([])
+    const navigation = useNavigation();
+
 
     const handleSearch = (query) => {
       setSearchQuery(query);
       console.log(user)
 
-      api.get(`/Event/PostsOfUser?token=${user.token}&email=${query}`)
+      api.get(`/Event/SearchUsers?searchString=${query}`)
       .then((response) => {
         // Handle the successful response here
-        setPosts(response.data)
-        console.log('Data:', response.data);
+        setUsers(response.data)
+        console.log('Data:', users);
       })
       .catch((error) => {
         // Handle any errors here
@@ -27,39 +30,29 @@ function SearchScreen({user}) {
   
     return (
             <View style={styles.container}>
-                <View style={{width: '90%'}}>
+                <View style={{width: '90%', marginTop: 20}}>
+                    <Text style={styles.title}>Search</Text>
                     <TextInput
                     style={styles.input}
                     placeholder="Search"
                     onChangeText={handleSearch}
                     value={searchQuery}
                     />
-                    <View style={{ flex: 1, height: '90%' }}>
-                        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
-                        {posts.map((post, index) => (
-                            <Pressable key={index} style={{ flexDirection: 'row', width: '95%', justifyContent: 'center', margin: 10, padding: 10, backgroundColor: 'black', borderRadius: 10 }}>
-                            <View style={{ flex: 1, justifyContent: 'space-between' }}>
-                                <View>
-                                <Text style={styles.postDate}>21:30, SNA A43, Wed, Oct 11</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 5 }}>
-                                    <Ionicons name="person-outline" color={'white'} size={10} />
-                                    <Text style={styles.participantCount}>147</Text>
+                    <View style={styles.divider}/>
+                    <View style={{ height: '90%'}}>
+                        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center'}}>
+                        {users.map((user, index) => (
+                            <TouchableOpacity  
+                                onPress={() => navigation.navigate('OtherProfile', {email: user.email})}
+                                key={index} style={{ flexDirection: 'row', width: '100%',   padding: 10, borderRadius: 10 }}>
+                                <View style={{width: '10%', justifyContent: 'center'}}>
+                                    <Image source={{ uri: user.profileImageUrl }} style={styles.profileImage} />
                                 </View>
+                                <View style={{flex: 1, marginLeft: 10}}>
+                                    <Text style={styles.userDisplayName}>{user.displayName}</Text>
+                                    <Text style={styles.userSurname}>{user.username}</Text>
                                 </View>
-                                <View style={{ marginTop: 0 }}>
-                                <Text style={styles.postTitle}>{post.title}</Text>
-                                <Text style={styles.postTitle}>{post.description}</Text>
-                                <Text style={styles.postDate}>KU Music Club</Text>
-                                </View>
-                                <View style={{ flexDirection: 'row', marginRight: 20 }}>
-                                <Text style={styles.postParticipants}>unal, gokber, abdulla and others are joining</Text>
-                                <Ionicons name="bookmark-outline" color={'red'} size={20} />
-                                </View>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
-                            </View>
-                            </Pressable>
+                            </TouchableOpacity>
                         ))}
                         </ScrollView>
                     </View>
@@ -74,21 +67,33 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 0,
+        paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 50,
     },
     imageBackground: {
       flex: 1,
       resizeMode: 'cover', // You can adjust the resizeMode as needed
     },
+    title:{
+        fontSize: 28,
+        color: 'white',
+        paddingVertical: 10,
+        fontFamily: 'Montserrat_400Regular'
+    },
     input: {
         height: 40,
         width: '100%',
-        marginVertical: 25,
+        marginVertical: 5,
         borderWidth: 1,
         padding: 10,
         borderRadius: 10,
         backgroundColor: 'white',
         color: 'black',
+    },
+    divider: {
+        marginTop: '3%',
+        borderBottomColor: '#393e46',
+        borderBottomWidth: 1,
+        alignSelf:'stretch'
     },
     button: {
       alignItems: 'center',
@@ -107,32 +112,22 @@ const styles = StyleSheet.create({
       letterSpacing: 0.25,
       color: 'white',
     },
-    postTitle: {
+    userDisplayName: {
         fontSize: 16,
         color: 'white',
         fontFamily: 'Montserrat_400Regular'
-      },
-      postDate: {
-        fontSize: 12,
-        color: 'white',
-        fontFamily: 'Montserrat_400Regular'
-      },
-      postParticipants: {
-        fontSize: 8,
-        color: 'white',
-        fontFamily: 'Montserrat_400Regular'
-      },
-      participantCount: {
-        fontSize: 9,
-        color: 'white',
-        fontFamily: 'Montserrat_400Regular'
-      },
-      postImage: {
-          aspectRatio: 4/3, // 1:1 aspect ratio (square)
-          width: '100%',  // You can adjust the width as needed
-          alignSelf: 'center', // Center the image horizontally
-          borderRadius: 5
-      }
+    },
+    userSurname: {
+    fontSize: 12,
+    color: 'white',
+    fontFamily: 'Montserrat_400Regular'
+    },
+    profileImage: {
+        aspectRatio: 1, // 1:1 aspect ratio (square)
+        width: '100%',  // You can adjust the width as needed
+        alignSelf: 'center', // Center the image horizontally
+        borderRadius: 100
+    }
   });
 
 export default SearchScreen

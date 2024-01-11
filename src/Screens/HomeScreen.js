@@ -104,8 +104,8 @@ const styles = StyleSheet.create({
 container: {
     flex: 1,
     flexDirection: 'column',
-    paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 0,
-},
+    paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 50,
+  },
 divider: {
   marginTop: '3%',
   borderBottomColor: '#393e46',
@@ -164,6 +164,5 @@ postImage: {
     borderRadius: 5
 }
 });
-
 
 export default HomeScreen

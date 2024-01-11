@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import api from '../api/axiosConfig'
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 
-
 const formatTime = (dateString) => {
     const options = {
       hour: 'numeric',
@@ -24,21 +23,35 @@ const formatTime = (dateString) => {
     return formattedDate;
   };
 
-function ProfileScreen(props){
+
+function OtherProfileScreen(props){
+    const targetEmail = props.route.params.email
+    const user = props.route.params.user
     const [posts, setPosts] = useState([])
+    const [targetUser, setTargetUser] = useState({})
     const isFocused = useIsFocused();
     const navigation = useNavigation();
-    const user = props.user
+    
+
 
     useEffect(() => {
-        console.log("Mounting profile")
+        console.log("Mounting other profile")
         // Perform GET request when the component mounts
-        api.get(`/Event/PostsOfUser?token=${user.token}&email=${user.email}`)
+        api.get(`/Event/UserByEmail?email=${targetEmail}`)
         .then((response) => {
             // Handle the successful response here
-            setPosts(response.data)
-            console.log('Data posts in profile:', response.data);
-            console.log(posts.length)
+            setTargetUser(response.data)
+            console.log('Data targetUser:', response.data);
+            api.get(`/Event/PostsOfUser?email=${targetEmail}&token=${user.token}`)
+                .then((response) => {
+                    // Handle the successful response here
+                    setPosts(response.data)
+                    console.log('Data targetUser:', response.data);
+                })
+                .catch((error) => {
+                    // Handle any errors here
+                    console.error('Error:', error);
+                });
           })
           .catch((error) => {
             // Handle any errors here
@@ -46,37 +59,44 @@ function ProfileScreen(props){
           });
     }, [props, isFocused]);
 
+
+
     return(
         <View style={styles.container}>
-            <View style={styles.container1}>
-                <TouchableOpacity  style={styles.iconButton}>
+            <View style={{...styles.container1}}>
+                <TouchableOpacity  
+                    onPress={() => navigation.navigate('Home')} 
+                    style={styles.iconButton}>
                     <Ionicons name="arrow-back-outline" color={"white"} size={25} />
                 </TouchableOpacity>
-                <Text style={styles.text}>@{user.username}</Text>
-                <TouchableOpacity  style={styles.iconButton}>
-                    <Ionicons name="exit-outline" color={"white"} size={25}/>
+                <Text style={styles.text}>@{targetUser.username}</Text>
+                <TouchableOpacity  
+                    style={styles.iconButton}>
+                    <Ionicons name="arrow-back-outline" color={"black"} size={25} />
                 </TouchableOpacity>
             </View>
             <View style={styles.container2}>
-                <Image source={{uri: user.profileImageUrl}} style={styles.profileImg}/>
-                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center'}}>
-                    <View style={{alignItems: 'center'}}>
-                        <Text style={styles.textNum}>0</Text>
-                        <Text style={styles.textFollow}>followers</Text>
+                <Image source={{uri: targetUser.profileImageUrl}} style={styles.profileImg}/>
+                <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center'}}>
+                    <View style={{flexDirection: 'row', width: '100%',justifyContent: 'space-around'}}>
+                        <View style={{alignItems: 'center'}}>
+                            <Text style={styles.textNum}>0</Text>
+                            <Text style={styles.textFollow}>followers</Text>
+                        </View>
+                        <View style={{alignItems: 'center'}}>
+                            <Text style={styles.textNum}>0</Text>
+                            <Text style={styles.textFollow}>following</Text>
+                        </View>
                     </View>
-                    <View style={{alignItems: 'center'}}>
-                        <Text style={styles.textNum}>0</Text>
-                        <Text style={styles.textFollow}>following</Text>
-                    </View>
-                    <TouchableOpacity  style={{...styles.button, backgroundColor: 'white'}}>
-                            <Text style={{ ...styles.text, fontSize: 14, color: '#1e9bd4' }}>Edit</Text>
+                    <TouchableOpacity  style={{...styles.button, width:'80%', backgroundColor: 'white'}}>
+                            <Text style={{ ...styles.text, fontSize: 14, color: '#1e9bd4' }}>Follow</Text>
                     </TouchableOpacity>
                 </View>
             </View>
             <View style={styles.divider}/>
             <View style={{padding:15}}>
-                <Text style={styles.text}>{user.displayName}</Text>
-                <Text style={{...styles.text, fontSize: 14, paddingTop: 10}}>{user.description}</Text>
+                <Text style={styles.text}>{targetUser.displayName}</Text>
+                <Text style={{...styles.text, fontSize: 14, paddingTop: 10}}>{targetUser.description}</Text>
             </View>
             <View style={styles.divider}/>            
             <View style={{flex: 1, justifyContent: 'center', alignItems:'center'}}>
@@ -115,10 +135,8 @@ function ProfileScreen(props){
                         <Ionicons name="calendar" color={"white"} size={150}/>
                         <Text style={{...styles.text, fontSize: 20}}>No upcoming events</Text>
                     </View>
-                    
-                )}
-            </View>
-
+                    )}
+                    </View>
         </View>
     )
 }
@@ -226,5 +244,4 @@ const styles = StyleSheet.create({
       }
 });
 
-
-export default ProfileScreen
+export default OtherProfileScreen

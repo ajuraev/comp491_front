@@ -15,6 +15,8 @@ import OtherProfileScreen from './src/Screens/OtherProfileScren'
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
 import {  useFonts, Montserrat_400Regular, Montserrat_700Bold } from '@expo-google-fonts/montserrat';
+import { LogBox } from 'react-native';
+
 
 import * as SplashScreen from 'expo-splash-screen';
 import Welcome from './src/Login/Welcome'
@@ -42,6 +44,9 @@ export default function App() {
   });
   const [user, setUser] = useState(false)
  
+  LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+  LogBox.ignoreAllLogs();//Ignore all log notifications
+  
   const Main = () => {
     const HomeStack = ({user}) => {
       return (
@@ -62,7 +67,7 @@ export default function App() {
             }}
             >
               <Tab.Screen
-                name="Home"
+                name="MainHome"
                 options={{
                   tabBarIcon: ({ color, size }) => (
                     <Ionicons name="home" color={color} size={size} />

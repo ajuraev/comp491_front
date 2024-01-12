@@ -194,11 +194,9 @@ function ProfileScreen(props){
                                 </View>
                                 <View style={{ marginTop: 0 }}>
                                 <Text style={styles.postTitle}>{post.title}</Text>
-                                <Text style={styles.postTitle}>{post.description}</Text>
                                 <Text style={styles.postDate}>{post.ownerId}</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row', marginRight: 20 }}>
-                                <Text style={styles.postParticipants}>unal, gokber, abdulla and others are joining</Text>
                                 </View>
                             </View>
                             <View style={{ flex: 1 }}>

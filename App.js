@@ -46,7 +46,7 @@ export default function App() {
     const HomeStack = ({user}) => {
       return (
         <Stack.Navigator headerMode="none">
-          <Stack.Screen name="Home" component={HomeScreen} initialParams={{ user: user }}/>
+          <Stack.Screen name="Home" component={HomeScreen} initialParams={{ token: user.token}}/>
           <Stack.Screen name="EventInfo" component={EventInfoScreen} initialParams={{ user: user}}/>
           <Stack.Screen name="OtherProfile" component={OtherProfileScreen} initialParams={{ user: user}}/>
         </Stack.Navigator>

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image, NativeModules, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, NativeModules, TouchableOpacity, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native'; // Import the hook for route parameters
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
@@ -52,6 +52,7 @@ function EventInfoScreen() {
   
       const isFollowed = user.friends.includes(post.ownerId); 
       setHasFollowed(isFollowed)
+      console.log("Is followed", isFollowed)
 
       const isPending = user.out_requests.includes(post.ownerId);
       setHasPending(isPending)
@@ -186,46 +187,48 @@ function EventInfoScreen() {
             <Ionicons name="trash" color={user.email == post.ownerId ? 'white' : 'black'} size={40} />
           </TouchableOpacity>
         </View>
-        <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
-        <Text style={styles.title}>{post.title}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('OtherProfile', {email: post.ownerId})} style={{...styles.button, flexDirection: 'row', justifyContent: 'space-between'}}>
-          <View style={{flexDirection: 'row'}}>
-            {/* <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png' }} style={styles.avatarImage} /> */}
-            <Text style={{ ...styles.text, fontSize: 14, color: 'black' }}>{post.ownerId}</Text>
-          </View>
-          <TouchableOpacity onPress={() => handleFollowUser(user.token,post.ownerId)} style={{...styles.followButton, backgroundColor: hasFollowed ? 'red' : (hasPending ? 'yellow' :'#3659e3')}}>
-            <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>{hasFollowed ? "Unfollow" : (hasPending ? "Pending" : "Follow")}</Text>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
+          <Text style={styles.title}>{post.title}</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('OtherProfile', {email: post.ownerId})} style={{...styles.button, flexDirection: 'row', justifyContent: 'space-between'}}>
+            <View style={{flexDirection: 'row'}}>
+              {/* <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png' }} style={styles.avatarImage} /> */}
+              <Text style={{ ...styles.text, fontSize: 14, color: 'black' }}>{post.ownerId}</Text>
+            </View>
+            <TouchableOpacity onPress={() => handleFollowUser(user.token,post.ownerId)} style={{...styles.followButton, backgroundColor: hasFollowed ? 'red' : (hasPending ? 'yellow' :'#3659e3')}}>
+              <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>{hasFollowed ? "Unfollow" : (hasPending ? "Pending" : "Follow")}</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
-        </TouchableOpacity>
-        <View style={{flexDirection: 'row', marginTop: 20}}>
-          <Ionicons name="calendar" color={'white'} size={30} />
-          <View style={{marginLeft: 10}}>
-            <Text style={{fontFamily: 'Montserrat_400Regular',fontSize: 14, color: 'white' }}>{formatDate(post.event_date)}</Text>
-            <Text style={{fontFamily: 'Montserrat_400Regular',fontSize: 12, color: 'white' }}>{formatTime(post.event_date)}</Text>
+          <View style={{flexDirection: 'row', marginTop: 20}}>
+            <Ionicons name="calendar" color={'white'} size={30} />
+            <View style={{marginLeft: 10}}>
+              <Text style={{fontFamily: 'Montserrat_400Regular',fontSize: 14, color: 'white' }}>{formatDate(post.event_date)}</Text>
+              <Text style={{fontFamily: 'Montserrat_400Regular',fontSize: 12, color: 'white' }}>{formatTime(post.event_date)}</Text>
+            </View>
           </View>
-        </View>
-        <View style={{flexDirection: 'row', marginTop: 15}}>
-          <Ionicons name="location" color={'white'} size={30} />
-          <View style={{marginLeft: 10, justifyContent:'center'}}>
-            <Text style={{fontFamily: 'Montserrat_400Regular',fontSize: 14, color: 'white' }}>Event Location: {post.location}</Text>
+          <View style={{flexDirection: 'row', marginTop: 15}}>
+            <Ionicons name="location" color={'white'} size={30} />
+            <View style={{marginLeft: 10, justifyContent:'center'}}>
+              <Text style={{fontFamily: 'Montserrat_400Regular',fontSize: 14, color: 'white' }}>Event Location: {post.location}</Text>
+            </View>
           </View>
-        </View>
-        <View style={{flexDirection: 'row', marginTop: 15}}>
-          <Ionicons name="cash" color={'white'} size={30} />
-          <View style={{marginLeft: 10}}>
-            <Text style={{fontFamily: 'Montserrat_400Regular',fontSize: 14, color: 'white' }}>Price</Text>
-            <Text style={{fontFamily: 'Montserrat_400Regular',fontSize: 12, color: 'white' }}>{post.price} ₺</Text>
+          <View style={{flexDirection: 'row', marginTop: 15}}>
+            <Ionicons name="cash" color={'white'} size={30} />
+            <View style={{marginLeft: 10}}>
+              <Text style={{fontFamily: 'Montserrat_400Regular',fontSize: 14, color: 'white' }}>Price</Text>
+              <Text style={{fontFamily: 'Montserrat_400Regular',fontSize: 12, color: 'white' }}>{post.price} ₺</Text>
+            </View>
           </View>
-        </View>
-        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-around', marginTop: 40 }}>
-          <TouchableOpacity onPress={() => handleJoinEvent(user.token,post.postId)} style={{ ...styles.followButton, width: '40%', backgroundColor: hasJoined ? 'red' : '#3659e3'}}>
-            <Text style={{ ...styles.text, fontSize: 14, color: 'white', textAlign: 'center' }}>{hasJoined ? "Leave" : "Join"}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleFavouriteEvent(user.token,post.postId)} style={{ ...styles.followButton, width: '40%', backgroundColor: hasFavourited ? 'red' : '#3659e3'}}>
-            <Text style={{ ...styles.text, fontSize: 14, color: 'white', textAlign: 'center' }}>{hasFavourited ? "Remove from Favorites" : "Add to Favorites"}</Text>
-          </TouchableOpacity>
-        </View>
-        
+          <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-around', marginTop: 40 }}>
+            <TouchableOpacity onPress={() => handleJoinEvent(user.token,post.postId)} style={{ ...styles.followButton, width: '40%', backgroundColor: hasJoined ? 'red' : '#3659e3'}}>
+              <Text style={{ ...styles.text, fontSize: 14, color: 'white', textAlign: 'center' }}>{hasJoined ? "Leave" : "Join"}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleFavouriteEvent(user.token,post.postId)} style={{ ...styles.followButton, width: '40%', backgroundColor: hasFavourited ? 'red' : '#3659e3'}}>
+              <Text style={{ ...styles.text, fontSize: 14, color: 'white', textAlign: 'center' }}>{hasFavourited ? "Remove from Favorites" : "Add to Favorites"}</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+
       </View>
       
     </View>

@@ -30,8 +30,11 @@ function HomeScreen(props) {
   const [content, setContent] = useState(0)
   const [openedEvent, setOpenedEvent] = useState(null)
   const isFocused = useIsFocused();
+  const [user, setUser] = useState([])
 
-  const user = props.route.params.user
+  const token = props.route.params.token
+
+
   const navigation = useNavigation();
 
   const logo = {
@@ -39,9 +42,9 @@ function HomeScreen(props) {
   };
 
   useEffect(() => {
-    console.log("Mounting home")
+    console.log("Mounting home token", token)
     console.log("User in homescreen", user)
-    api.get(`Event/PostsbyToken?token=${user.token}`)
+    api.get(`Event/PostsbyToken?token=${token}`)
       .then((response) => {
         // Handle the successful response here
         setPosts(response.data)
@@ -50,6 +53,19 @@ function HomeScreen(props) {
       .catch((error) => {
         // Handle any errors here
         console.error('Error:', error);
+      });
+
+      api.get('/Event/loggedUser', {
+        params: {
+          token: token,
+        },
+      })
+      .then((response) => {
+          console.log('Data user:', response.data);
+          setUser({...response.data, token: token})
+      })
+      .catch((error) => {
+          console.error('Error:', error);
       });
   }, [props, isFocused]);
 

@@ -1,30 +1,59 @@
-import { View, Text, TouchableOpacity, TextInput,StyleSheet, NativeModules } from "react-native"
+import { View, Text, TouchableOpacity,Image, TextInput,StyleSheet, NativeModules } from "react-native"
 const { StatusBarManager } = NativeModules;
 import Checkbox from 'expo-checkbox';
+import { Camera, CameraType } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import { useState } from "react";
 
-function Signup2({setContent, setUserInfo}){
+function Signup2({setContent, setUserInfo, setUserImage}){
     const [isChecked, setChecked] = useState(false);
-    const [info, setInfo] = useState({})
+    const [info, setInfo] = useState({});
+    const [image, setImage] = useState(null);
+
+    
 
     const handleSubmit = () => {
-        // setUserInfo({
-        //     displayName: userInfo.displayName,
-        //     username: userInfo.username,
-        //     email: userInfo.email,
-        //     password: userInfo.password,
-        //   });   
+       
         if (!info.displayName || !info.username || !info.email || !info.password) {
         
         } else {
             if (info.email.endsWith("@ku.edu.tr")) {
               setUserInfo({ ...info });
+              setUserImage(image);
               setContent('3');
             } else {
               console.error('Invalid email domain. Must end with "@ku.edu.tr"');
             }
           }
     }
+
+    const pickImage = async () => {
+        // No permissions request is necessary for launching the image library
+        let result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 1,
+        });
+    
+        if (!result.canceled) {
+          // Get the URI of the selected image
+          const imageUri = result.assets[0].uri;
+  
+          setImage(imageUri)
+          // Download the image data from the URI
+          const response = await fetch(imageUri);
+          const imageBuffer = await response.arrayBuffer();
+  
+          setImage({
+            name: 'image.jpg', // Name of the file to be sent
+            type: 'image/jpeg', // MIME type of the file
+            uri: imageUri,
+            data: imageBuffer, // The image data as a buffer
+          })
+
+        }
+      };
     
     return (
         <View style={styles.container}>
@@ -33,6 +62,8 @@ function Signup2({setContent, setUserInfo}){
                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                     <TextInput
                     style={styles.input}
+                    autoCapitalize='none'
+
                     placeholder='Display name'
                     onChangeText={(text) => setInfo({ ...info, displayName: text })}
                     />
@@ -40,19 +71,29 @@ function Signup2({setContent, setUserInfo}){
                 <TextInput
                     style={styles.input}
                     placeholder='@Username'
+                    autoCapitalize='none'
+
                     onChangeText={(text) => setInfo({ ...info, username: text })}
                 />
                 <TextInput
                     style={styles.input}
                     placeholder='Email'
+                    autoCapitalize='none'
+
                     onChangeText={(text) => setInfo({ ...info, email: text })}
                     />
                 <TextInput
                     style={styles.input}
                     onChangeText={(text) => setInfo({ ...info, password: text })}
                     secureTextEntry
+                    autoCapitalize='none'
+
                     placeholder='Password'
                 />
+                {image && <Image source={{ uri: image }} style={{aspectRatio: 1, width: '75%', margin: 20, borderRadius: 10}} />}
+                  <TouchableOpacity onPress={pickImage} style={styles.buttonPic}>
+                    <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>Pick image</Text>
+                  </TouchableOpacity>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Checkbox
                         style={styles.checkbox}
@@ -116,6 +157,16 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderRadius: 10,
         alignItems: 'center'
+    },
+    buttonPic: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 32,
+        borderRadius: 4,
+        elevation: 3,
+        backgroundColor: '#1e9bd4',
+        marginTop: 10
     },
     checkbox: {
         marginVertical: 8,

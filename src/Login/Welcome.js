@@ -33,7 +33,7 @@ function Welcome({setUser}){
         }else if (content === 'login'){
             return <Login setUser={setUser}/>
         }else{
-            return <Signup setUser={setUser}/>
+            return <Signup setUser={setUser} setMainContent={setContent}/>
         }
     }
 

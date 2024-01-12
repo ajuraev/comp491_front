@@ -195,7 +195,7 @@ function EventInfoScreen() {
               {/* <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png' }} style={styles.avatarImage} /> */}
               <Text style={{ ...styles.text, fontSize: 14, color: 'black' }}>{post.ownerId}</Text>
             </View>
-            <TouchableOpacity onPress={() => handleFollowUser(user.token,post.ownerId)} style={{...styles.followButton, backgroundColor: hasFollowed ? 'red' : (hasPending ? 'yellow' :'#3659e3')}}>
+            <TouchableOpacity onPress={() => handleFollowUser(user.token,post.ownerId)} style={{...styles.followButton, backgroundColor: hasFollowed ? 'red' : (hasPending ? 'green' :'#3659e3')}}>
               <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>{hasFollowed ? "Unfollow" : (hasPending ? "Pending" : "Follow")}</Text>
             </TouchableOpacity>
           </TouchableOpacity>

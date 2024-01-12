@@ -46,12 +46,12 @@ export default function App() {
  
   LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
   LogBox.ignoreAllLogs();//Ignore all log notifications
-  
+
   const Main = () => {
     const HomeStack = ({user}) => {
       return (
         <Stack.Navigator headerMode="none">
-          <Stack.Screen name="Home" component={HomeScreen} initialParams={{ token: user.token}}/>
+          <Stack.Screen name="Home" component={HomeScreen} initialParams={{ user: user}}/>
           <Stack.Screen name="EventInfo" component={EventInfoScreen} initialParams={{ user: user}}/>
           <Stack.Screen name="OtherProfile" component={OtherProfileScreen} initialParams={{ user: user}}/>
         </Stack.Navigator>

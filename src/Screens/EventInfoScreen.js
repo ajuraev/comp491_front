@@ -6,24 +6,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import api from '../api/axiosConfig'
 import { useState } from 'react';
+import { formatTime, formatDate } from '../utils/dateHelpers'; 
 
-const formatDate = (dateString) => {
-  const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
-  const formattedDate = new Date(dateString).toLocaleDateString('en-US', options);
-  return formattedDate;
-};
+import { useSelector, useDispatch } from 'react-redux';
 
-const formatTime = (dateString) => {
-  const options = {
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: false,
-    timeZone: 'Europe/Istanbul', // Set the desired time zone
-  };
-
-  const formattedTime = new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
-  return formattedTime;
-};
 
 
 
@@ -33,7 +19,7 @@ function EventInfoScreen() {
   const navigation = useNavigation();
 
   const post = route.params?.post || null; // Access the postId parameter
-  const user = route.params?.user || null;
+  const userData = useSelector(state => state.user.userData);
 
   const [hasJoined, setHasJoined] = useState()
   const [hasFavourited, setHasFavourited] = useState()
@@ -42,26 +28,26 @@ function EventInfoScreen() {
 
 
   useEffect(() => {
-    if (post && user) {
+    if (post && userData) {
       // Check if the user has joined
-      console.log("User in info screen",user)
+      console.log("User in info screen",userData)
       console.log("Event info screen", post)
-      const isUserJoined = post.users_joining.includes(user.email);
+      const isUserJoined = post.users_joining.includes(userData.email);
       
       setHasJoined(isUserJoined);
   
-      const isFollowed = user.friends.includes(post.ownerId); 
+      const isFollowed = userData.friends.includes(post.ownerId); 
       setHasFollowed(isFollowed)
       console.log("Is followed", isFollowed)
 
-      const isPending = user.out_requests.includes(post.ownerId);
+      const isPending = userData.out_requests.includes(post.ownerId);
       setHasPending(isPending)
 
       // Check if the user has favorited
-      const isUserFavourited = post.users_liked.includes(user.email);
+      const isUserFavourited = post.users_liked.includes(userData.email);
       setHasFavourited(isUserFavourited);
     }
-  }, [post, user]);
+  }, [post, userData]);
 
 
   const handleJoinEvent = (token, eventId) => {
@@ -177,14 +163,14 @@ function EventInfoScreen() {
       <View style={{width: '90%'}}>
         <View style={{flexDirection:'row', justifyContent: 'space-between'}}>
           <TouchableOpacity 
-            onPress={() => navigation.navigate('Home')} 
+            onPress={() => navigation.goBack() } 
             style={{marginVertical: 10}}> 
             <Ionicons name="arrow-back" color={'white'} size={40} />
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={user.email == post.ownerId ? handleDelete : null} 
+            onPress={userData.email == post.ownerId ? handleDelete : null} 
             style={{marginVertical: 10}}> 
-            <Ionicons name="trash" color={user.email == post.ownerId ? 'white' : 'black'} size={40} />
+            <Ionicons name="trash" color={userData.email == post.ownerId ? 'white' : 'black'} size={40} />
           </TouchableOpacity>
         </View>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -195,7 +181,7 @@ function EventInfoScreen() {
               {/* <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png' }} style={styles.avatarImage} /> */}
               <Text style={{ ...styles.text, fontSize: 14, color: 'black' }}>{post.ownerId}</Text>
             </View>
-            <TouchableOpacity onPress={() => handleFollowUser(user.token,post.ownerId)} style={{...styles.followButton, backgroundColor: hasFollowed ? 'red' : (hasPending ? 'green' :'#3659e3')}}>
+            <TouchableOpacity onPress={() => handleFollowUser(userData.token,post.ownerId)} style={{...styles.followButton, backgroundColor: hasFollowed ? 'red' : (hasPending ? 'green' :'#3659e3')}}>
               <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>{hasFollowed ? "Unfollow" : (hasPending ? "Pending" : "Follow")}</Text>
             </TouchableOpacity>
           </TouchableOpacity>
@@ -220,10 +206,10 @@ function EventInfoScreen() {
             </View>
           </View>
           <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-around', marginTop: 40 }}>
-            <TouchableOpacity onPress={() => handleJoinEvent(user.token,post.postId)} style={{ ...styles.followButton, width: '40%', backgroundColor: hasJoined ? 'red' : '#3659e3'}}>
+            <TouchableOpacity onPress={() => handleJoinEvent(userData.token,post.postId)} style={{ ...styles.followButton, width: '40%', backgroundColor: hasJoined ? 'red' : '#3659e3'}}>
               <Text style={{ ...styles.text, fontSize: 14, color: 'white', textAlign: 'center' }}>{hasJoined ? "Leave" : "Join"}</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleFavouriteEvent(user.token,post.postId)} style={{ ...styles.followButton, width: '40%', backgroundColor: hasFavourited ? 'red' : '#3659e3'}}>
+            <TouchableOpacity onPress={() => handleFavouriteEvent(userData.token,post.postId)} style={{ ...styles.followButton, width: '40%', backgroundColor: hasFavourited ? 'red' : '#3659e3'}}>
               <Text style={{ ...styles.text, fontSize: 14, color: 'white', textAlign: 'center' }}>{hasFavourited ? "Remove from Favorites" : "Add to Favorites"}</Text>
             </TouchableOpacity>
           </View>

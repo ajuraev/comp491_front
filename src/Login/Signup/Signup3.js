@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 
 
 
-function Signup3({setContent, userInfo, setUser, userImage}){
+function Signup3({setContent, userInfo, userImage}){
     const [enteredCode, setEnteredCode] = useState('')
     const [code, setCode] = useState(0)
 

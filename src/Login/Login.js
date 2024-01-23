@@ -1,18 +1,63 @@
-import {View, Text, ImageBackground, Image, TextInput, StyleSheet, TouchableOpacity} from 'react-native'
+import {View, Text, ImageBackground, Image, TextInput, ActivityIndicator, StyleSheet, TouchableOpacity} from 'react-native'
 import { useState, useEffect } from 'react';
 import api from '../api/axiosConfig'
+import { useSelector, useDispatch } from 'react-redux';
+import { setUserData } from '../redux/slices/userSlice';
 
-function Login({setUser}){
+
+const validateEmail = (email, setEmailError) => {
+    if (email === '') {
+        setEmailError('*Email is required');
+        return false;
+    } else if (!email.endsWith('@ku.edu.tr')) { // Simple validation check
+        setEmailError('*Please enter a KU email');
+        return false;
+    }
+    setEmailError('');
+    return true;
+};
+
+const validatePassword = (password, setPasswordError) => {
+    if (password === '') {
+        setPasswordError('*Password is required');
+        return false;
+    }else if(password.length <= 6){
+        setPasswordError('*Password length must be atleast 6');
+        return false;
+    }
+    setPasswordError('');
+    return true;
+};
+
+
+function Login({}){
     const [email, onChangeUsername] = useState('');
     const [password, onChangePassword] = useState('');
 
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+
+    const [isLoading, setIsLoading] = useState(false);
+
+    const dispatch = useDispatch();
+
 
     const handleSubmit = () => {
+        const isEmailValid = validateEmail(email, setEmailError);
+        const isPasswordValid = validatePassword(password, setPasswordError);
+
+        if (!isEmailValid || !isPasswordValid) {
+            // Don't submit if validation fails
+            return;
+        }
+
+        setIsLoading(true); // Start loading
+
         const loginData = {
             email: email, // Replace with the actual email
             password: password,  // Replace with the actual password
         };
-          
+
         var token;
 
         api.post('/Event/AppLogin', loginData)
@@ -27,15 +72,21 @@ function Login({setUser}){
             })
             .then((response) => {
                 console.log('Data:', response.data);
-                setUser({...response.data, token: token})
+                //setUser({...response.data, token: token})
+                dispatch(setUserData({...response.data, token: token}));
+                setIsLoading(false);
             })
             .catch((error) => {
                 console.error('Error:', error);
+                setPasswordError('*Incorrect password or email');
+                setIsLoading(false);
             });
         })
         .catch((error) => {
             // Handle any errors here
             console.error('Login Error:', error);
+            setIsLoading(false);
+
         });
     }
     
@@ -46,31 +97,45 @@ function Login({setUser}){
                 style={styles.imageBackground}
                 blurRadius={3}
             >
+                <View style={styles.overlay} />
                 <View>
                     <Text style={styles.text}>Welcome to</Text>
                     <Text style={styles.textBold}>kucial</Text>
                 </View>
                 <View style={{
-                    width: '80%',
+                    width: '80%',                  
                 }}>
-                    <TextInput
-                        style={styles.input}
-                        onChangeText={onChangeUsername}
-                        value={email}
-                        placeholder='Email'
-                        autoCapitalize='none'
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={onChangeUsername}
+                            value={email}
+                            placeholder='Email'
+                            autoCapitalize='none'
+                            placeholderTextColor='#d1d1d1'
+                        />
+                        {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+                    </View>
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={onChangePassword}
+                            value={password}
+                            placeholder='Password'
+                            secureTextEntry={true}
+                            placeholderTextColor='#d1d1d1'
+                        />
+                        {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+                    </View>
 
-                    />
-                    <TextInput
-                        style={styles.input}
-                        onChangeText={onChangePassword}
-                        value={password}
-                        placeholder='Password'
-                        secureTextEntry={true}
-                    />
-                    <TouchableOpacity onPress={handleSubmit} style={styles.button}>
-                        <Text style={{...styles.text, color: 'black'}}>Sign in</Text>
-                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleSubmit} style={styles.button} disabled={isLoading}>
+    {isLoading ? (
+        <ActivityIndicator size={31} color="#FFFFFF" />
+    ) : (
+        <Text style={{...styles.text, color: 'white'}}>Sign in</Text>
+    )}
+</TouchableOpacity>
+
                 </View> 
             </ImageBackground>
     )
@@ -87,6 +152,10 @@ const styles = StyleSheet.create({
       justifyContent: 'space-around',
       alignItems: 'center'
     },
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)', 
+    },
     text: {
       color: 'white',
       fontSize: 24,
@@ -97,24 +166,33 @@ const styles = StyleSheet.create({
         fontSize: 34,
         fontFamily: 'Montserrat_700Bold'
       },
+    errorText: {
+        color: 'red',
+        fontSize: 14,
+        fontFamily: 'Montserrat_400Regular',
+        marginTop: 3,
+    },
     button: {
         paddingHorizontal: 20,
         paddingVertical: 10,
         marginTop: 20,
-        backgroundColor: 'white',
+        backgroundColor: 'transparent', 
         borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'white',
         alignItems: 'center'
+    },
+    inputContainer: {
+        height: 70, // Adjust this value based on your design needs
+        width: '100%',
     },
     input: {
         width: '100%', // Adjust width as needed
-        height: 45,   // Set a fixed height or adjust as needed
-        backgroundColor: 'white',
-        color: 'grey',
-        borderWidth: 1,
-        borderRadius: 10,
-        paddingLeft: 10,
-        marginTop: 10,
-        fontFamily: 'Montserrat_400Regular'
+        height: 45,    // Set a fixed height or adjust as needed
+        color: 'white',
+        borderBottomWidth: 1, // Add a bottom border
+        borderBottomColor: 'white', // Set the color for the bottom border
+        fontFamily: 'Montserrat_400Regular',
     },
   });
 

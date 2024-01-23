@@ -5,21 +5,23 @@ import { useCallback } from 'react';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import HomeScreen from './src/Screens/HomeScreen'
-import CreateScreen from './src/Screens/CreateScreen';
-import ProfileScreen from './src/Screens/ProfileScreen';
-import SearchScreen from './src/Screens/SearchScreen';
-import FavoriteScreen from './src/Screens/FavoriteScreen';
-import EventInfoScreen from './src/Screens/EventInfoScreen';
-import OtherProfileScreen from './src/Screens/OtherProfileScren'
+import HomeScreen from './Screens/HomeScreen'
+import CreateScreen from './Screens/CreateScreen';
+import ProfileScreen from './Screens/ProfileScreen';
+import SearchScreen from './Screens/SearchScreen';
+import FavoriteScreen from './Screens/FavoriteScreen';
+import EventInfoScreen from './Screens/EventInfoScreen';
+import OtherProfileScreen from './Screens/OtherProfileScren'
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
 import {  useFonts, Montserrat_400Regular, Montserrat_700Bold } from '@expo-google-fonts/montserrat';
 import { LogBox } from 'react-native';
-
+import { Provider } from 'react-redux';
+import store from './redux/store';
+import { useSelector, useDispatch } from 'react-redux';
 
 import * as SplashScreen from 'expo-splash-screen';
-import Welcome from './src/Login/Welcome'
+import Welcome from './Login/Welcome'
 
 
 const MyTheme = {
@@ -42,18 +44,39 @@ export default function App() {
   let [fontsLoaded] = useFonts({
     Montserrat_400Regular, Montserrat_700Bold
   });
-  const [user, setUser] = useState(false)
- 
+
+  const userData = useSelector(state => state.user.userData);
+
   LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
   LogBox.ignoreAllLogs();//Ignore all log notifications
 
   const Main = () => {
-    const HomeStack = ({user}) => {
+    const HomeStack = () => {
       return (
         <Stack.Navigator headerMode="none">
-          <Stack.Screen name="Home" component={HomeScreen} initialParams={{ user: user}}/>
-          <Stack.Screen name="EventInfo" component={EventInfoScreen} initialParams={{ user: user}}/>
-          <Stack.Screen name="OtherProfile" component={OtherProfileScreen} initialParams={{ user: user}}/>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="EventInfo" component={EventInfoScreen} />
+          <Stack.Screen name="OtherProfile" component={OtherProfileScreen} />
+        </Stack.Navigator>
+      );
+    };
+
+    const ProfileStack = () => {
+      return (
+        <Stack.Navigator headerMode="none">
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="EventInfo" component={EventInfoScreen} />
+          <Stack.Screen name="OtherProfile" component={OtherProfileScreen} />
+        </Stack.Navigator>
+      );
+    };
+
+    const FavoritesStack = () => {
+      return (
+        <Stack.Navigator headerMode="none">
+          <Stack.Screen name="Favorites" component={FavoriteScreen} />
+          <Stack.Screen name="EventInfo" component={EventInfoScreen} />
+          <Stack.Screen name="OtherProfile" component={OtherProfileScreen} />
         </Stack.Navigator>
       );
     };
@@ -67,14 +90,14 @@ export default function App() {
             }}
             >
               <Tab.Screen
-                name="MainHome"
+                name="HomeScreen"
                 options={{
                   tabBarIcon: ({ color, size }) => (
                     <Ionicons name="home" color={color} size={size} />
                   ),
                 }}
               >
-                {(props) => <HomeStack {...props} user={user} />}
+                {(props) => <HomeStack {...props}/>}
               </Tab.Screen>
               <Tab.Screen
                 name="Search"
@@ -84,7 +107,7 @@ export default function App() {
                   ),
                 }}
               >
-                {(props) => <SearchScreen {...props} user={user} />}
+                {(props) => <SearchScreen {...props}/>}
               </Tab.Screen>
               <Tab.Screen
                 name="Create"
@@ -94,28 +117,29 @@ export default function App() {
                   ),
                 }}
               >
-                {(props) => <CreateScreen {...props} user={user} />}
+                {(props) => <CreateScreen {...props} />}
               </Tab.Screen>
               <Tab.Screen
-                name="Favorites"
+                name="FavoritesScreen"
                 options={{
                   tabBarIcon: ({ color, size }) => (
                     <Ionicons name="heart" color={color} size={size} />
                   ),
                 }}
               >
-                {(props) => <FavoriteScreen {...props} user={user} />}
+                {(props) => <FavoritesStack {...props}/>}
               </Tab.Screen>
               <Tab.Screen
-                name="Profile"
+                name="ProfileScreen"
                 options={{
                   tabBarIcon: ({ color, size }) => (
                     <Ionicons name="person" color={color} size={size} />
                   ),
                 }}
               >
-                {(props) => <ProfileScreen {...props} user={user} setUser={setUser} />}
+                {(props) => <ProfileStack {...props}/>}
               </Tab.Screen>
+
             </Tab.Navigator>
           </NavigationContainer>
   }
@@ -126,9 +150,9 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
-      {user ? <Main /> : <Welcome setUser={setUser}/>}
-    </View>      
+      <View style={styles.container}>
+        {userData ? <Main /> : <Welcome />}
+      </View>   
 
   );
 }

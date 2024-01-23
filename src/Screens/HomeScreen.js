@@ -4,24 +4,10 @@ import { useEffect, useState } from "react";
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useSelector, useDispatch } from 'react-redux';
 
-const formatTime = (dateString) => {
-  const options = {
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: false,
-    timeZone: 'Europe/Istanbul', // Set the desired time zone
-  };
+import { formatTime, formatDate } from '../utils/dateHelpers'; 
 
-  const formattedTime = new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
-  return formattedTime;
-};
-
-const formatDate = (dateString) => {
-  const options = { weekday: 'short', month: 'short', day: 'numeric' };
-  const formattedDate = new Date(dateString).toLocaleDateString('en-US', options);
-  return formattedDate;
-};
 
 
 function HomeScreen(props) {
@@ -31,7 +17,7 @@ function HomeScreen(props) {
   const [openedEvent, setOpenedEvent] = useState(null)
   const isFocused = useIsFocused();
 
-  const user = props.route.params.user
+  const userData = useSelector(state => state.user.userData);
 
 
   const navigation = useNavigation();
@@ -41,8 +27,8 @@ function HomeScreen(props) {
   };
 
   useEffect(() => {
-    console.log("User in homescreen", user)
-    api.get(`Event/PostsbyToken?token=${user.token}`)
+    console.log("User in homescreen", userData)
+    api.get(`Event/PostsbyToken?token=${userData.token}`)
       .then((response) => {
         // Handle the successful response here
         setPosts(response.data)
@@ -56,7 +42,7 @@ function HomeScreen(props) {
 
   const handleAll = () => {
     setContent(0)
-    api.get(`Event/PostsbyToken?token=${user.token}`)
+    api.get(`Event/PostsbyToken?token=${userData.token}`)
     .then((response) => {
       // Handle the successful response here
       setPosts(response.data)
@@ -70,7 +56,7 @@ function HomeScreen(props) {
 
   const handleFriends = () => {
     setContent(1)
-    api.get(`Event/PostsOfFriends?token=${user.token}`)
+    api.get(`Event/PostsOfFriends?token=${userData.token}`)
       .then((response) => {
         // Handle the successful response here
         setPosts(response.data)

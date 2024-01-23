@@ -11,12 +11,13 @@ import { format } from 'date-fns';
 
 import * as ImagePicker from 'expo-image-picker';
 import CameraScreen from './CameraScreen';
+import { useSelector, useDispatch } from 'react-redux';
 
 const { StatusBarManager } = NativeModules;
 
 
 
-function CreateScreen({user}) {
+function CreateScreen() {
     const [title, onChangeTitle] = useState('');
     const [description, onChangeDescription] = useState('');
     const [location, onChangeLocation] = useState('');
@@ -30,6 +31,7 @@ function CreateScreen({user}) {
     const [maxAttendees, setMaxAttendees] = useState(-1);
     const navigation = useNavigation();
 
+    const userData = useSelector(state => state.user.userData);
 
 
     const [startCamera,setStartCamera] = useState(false)
@@ -67,7 +69,7 @@ function CreateScreen({user}) {
       formData.append('isPublic', !isPrivate);
       formData.append('price', price);
       formData.append('eventDate', chosenDate.toISOString().replace(/\.\d+/, ''));
-      formData.append('token', user.token);
+      formData.append('token', userData.token);
       navigation.navigate('Home');
 
       console.log(formData)

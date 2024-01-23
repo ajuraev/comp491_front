@@ -5,38 +5,27 @@ import { useState, useEffect } from "react";
 import api from '../api/axiosConfig'
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 
+import { formatTime, formatDate } from '../utils/dateHelpers'; 
+import { useSelector, useDispatch } from 'react-redux';
+import { setUserData } from "../redux/slices/userSlice";
 
-const formatTime = (dateString) => {
-    const options = {
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: false,
-      timeZone: 'Europe/Istanbul', // Set the desired time zone
-    };
-  
-    const formattedTime = new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
-    return formattedTime;
-  };
-  
-  const formatDate = (dateString) => {
-    const options = { weekday: 'short', month: 'short', day: 'numeric' };
-    const formattedDate = new Date(dateString).toLocaleDateString('en-US', options);
-    return formattedDate;
-  };
 
-function ProfileScreen(props){
+function ProfileScreen(){
     const [posts, setPosts] = useState([])
     const isFocused = useIsFocused();
     const navigation = useNavigation();
-    const user = props.user
-    const setUser = props.setUser
     
     const [content, setContent] = useState(0)
+
+    const userData = useSelector(state => state.user.userData);
+    const dispatch = useDispatch();
+
+
 
     useEffect(() => {
         console.log("Mounting profile")
         // Perform GET request when the component mounts
-        api.get(`/Event/PostsOfUser?token=${user.token}&email=${user.email}`)
+        api.get(`/Event/PostsOfUser?token=${userData.token}&email=${userData.email}`)
         .then((response) => {
             // Handle the successful response here
             setPosts(response.data)
@@ -47,24 +36,24 @@ function ProfileScreen(props){
             // Handle any errors here
             console.error('Error:', error);
           });
-    }, [props, isFocused]);
+    }, [userData, isFocused]);
 
     const Content = () => {
 
         if(content == 0){
             return <Profile/>
         }else if(content == 1){
-            return <FriendRequests user={user}/>
+            return <FriendRequests userData={userData}/>
         }
     }
 
     
 
-    const FriendRequests = ({user}) => {
+    const FriendRequests = ({userData}) => {
         const [friendRequests, setFriendRequests] = useState([])
 
         const handleAccept = (friendRequest) => {
-            api.post(`/Event/AcceptFriendRequest?token=${user.token}&email=${friendRequest.email}`)
+            api.post(`/Event/AcceptFriendRequest?token=${userData.token}&email=${friendRequest.email}`)
             .then((response) => {
                 // Handle the successful response here
                 updateFriendRequest()
@@ -78,7 +67,7 @@ function ProfileScreen(props){
         }
     
         const updateFriendRequest = () => {
-            api.get(`/Event/InFriendRequests?token=${user.token}`)
+            api.get(`/Event/InFriendRequests?token=${userData.token}`)
                 .then((response) => {
                     // Handle the successful response here
                     setFriendRequests(response.data)
@@ -92,7 +81,7 @@ function ProfileScreen(props){
 
         const handleReject = (friendRequest) => {
             
-            api.post(`/Event/DenyFriendRequest?token=${user.token}&email=${friendRequest}`)
+            api.post(`/Event/DenyFriendRequest?token=${userData.token}&email=${friendRequest}`)
             .then((response) => {
                 // Handle the successful response here
                 updateFriendRequest()
@@ -115,24 +104,24 @@ function ProfileScreen(props){
                     <View style={styles.divider}/>
                     <View style={{ height: '90%', marginTop:15}}>
                         <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center'}}>
-                        {friendRequests.map((user, index) => (
+                        {friendRequests.map((userData, index) => (
                             <TouchableOpacity  
-                                onPress={() => navigation.navigate('OtherProfile', {email: user.email})}
+                                onPress={() => navigation.navigate('OtherProfile', {email: userData.email})}
                                 key={index} style={{ flexDirection: 'row', justifyContent:'space-between', width: '100%',   padding: 10, borderRadius: 10 }}>
                                 <View style={{width:'70%', flexDirection: 'row', alignItems:'center'}}>
                                     <View style={{width: '20%', justifyContent: 'center'}}>
-                                        <Image source={{ uri: user.profileImageUrl }} style={styles.profileImage} />
+                                        <Image source={{ uri: userData.profileImageUrl }} style={styles.profileImage} />
                                     </View>
                                     <View style={{flex: 1, marginLeft: 10}}>
-                                        <Text style={styles.userDisplayName}>{user.displayName}</Text>
-                                        <Text style={styles.username}>{user.username}</Text>
+                                        <Text style={styles.userDisplayName}>{userData.displayName}</Text>
+                                        <Text style={styles.username}>{userData.username}</Text>
                                     </View>
                                 </View>
                                 <View style={{flexDirection: 'row'}}>
-                                    <TouchableOpacity onPress={() => handleAccept(user)} style={{...styles.iconCheck, marginRight: 10}}>
+                                    <TouchableOpacity onPress={() => handleAccept(userData)} style={{...styles.iconCheck, marginRight: 10}}>
                                         <Ionicons name="checkmark-outline" color={"white"} size={25} />
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => handleReject(user)} style={styles.iconCheck}>
+                                    <TouchableOpacity onPress={() => handleReject(userData)} style={styles.iconCheck}>
                                         <Ionicons name="close-outline" color={"white"} size={25} />
                                     </TouchableOpacity>
                                 </View>
@@ -151,12 +140,12 @@ function ProfileScreen(props){
         return (
             <View style={{flex:1}}>
                 <View style={styles.container2}>
-                    <Image source={{uri: user.profileImageUrl}} style={styles.profileImg}/>
+                    <Image source={{uri: userData.profileImageUrl}} style={styles.profileImg}/>
                     <View style={{flex:1,flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center'}}>
                         <View style={{width:'80%'}}>
                             <View style={{width:'100%', flexDirection:'row', alignItems: 'center', justifyContent: 'space-between'}}>
                                 <View style={{alignItems: 'center'}}>
-                                    <Text style={styles.textNum}>{user.friends.length}</Text>
+                                    <Text style={styles.textNum}>{userData.friends.length}</Text>
                                     <Text style={styles.textFollow}>friends</Text>
                                 </View>
                                 <TouchableOpacity  style={{...styles.button, backgroundColor: 'white'}}>
@@ -172,8 +161,8 @@ function ProfileScreen(props){
                 </View>
                 <View style={styles.divider}/>
                 <View style={{padding:15}}>
-                    <Text style={styles.text}>{user.displayName}</Text>
-                    <Text style={{...styles.text, fontSize: 14, paddingTop: 10}}>{user.description}</Text>
+                    <Text style={styles.text}>{userData.displayName}</Text>
+                    <Text style={{...styles.text, fontSize: 14, paddingTop: 10}}>{userData.description}</Text>
                 </View>
                 <View style={styles.divider}/>            
                 <View style={{flex: 1, justifyContent: 'center', alignItems:'center'}}>
@@ -229,8 +218,8 @@ function ProfileScreen(props){
                         <Ionicons name="arrow-back-outline" color={"white"} size={25} />
                     </TouchableOpacity>
                 )}
-                <Text style={styles.text}>@{user.username}</Text>
-                <TouchableOpacity onPress={() => setUser(null)} style={styles.iconButton}>
+                <Text style={styles.text}>@{userData.username}</Text>
+                <TouchableOpacity onPress={() => dispatch(setUserData(null))} style={styles.iconButton}>
                     <Ionicons name="exit-outline" color={"white"} size={25}/>
                 </TouchableOpacity>
             </View>

@@ -6,35 +6,20 @@ import api from '../api/axiosConfig'
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { set } from "date-fns";
 
-
-const formatTime = (dateString) => {
-    const options = {
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: false,
-      timeZone: 'Europe/Istanbul', // Set the desired time zone
-    };
-  
-    const formattedTime = new Intl.DateTimeFormat('en-US', options).format(new Date(dateString));
-    return formattedTime;
-  };
-  
-  const formatDate = (dateString) => {
-    const options = { weekday: 'short', month: 'short', day: 'numeric' };
-    const formattedDate = new Date(dateString).toLocaleDateString('en-US', options);
-    return formattedDate;
-  };
+import { formatTime, formatDate } from '../utils/dateHelpers'; 
+import { useSelector, useDispatch } from 'react-redux';
 
 
 
-function FavoriteScreen(props){
+
+function FavoriteScreen(){
     const [favouriteEvents, setFavouriteEvents] = useState([])
     const [clubs, setClubs] = useState([])
     const [friends, setFriends] = useState([])
     const [content, setContent] = useState(0)
-    const user = props.user
     const navigation = useNavigation();
     const isFocused = useIsFocused();
+    const userData = useSelector(state => state.user.userData);
 
 
     const EventsList = ({posts}) => {  
@@ -104,7 +89,7 @@ function FavoriteScreen(props){
 
     useEffect(() => {
         console.log("Mounting favouriteScreen")
-        api.get(`/Event/LikedPostsOfUser?token=${user.token}`)
+        api.get(`/Event/LikedPostsOfUser?token=${userData.token}`)
           .then((response) => {
             setFavouriteEvents(response.data)
             console.log('Data:', response.data);
@@ -113,7 +98,7 @@ function FavoriteScreen(props){
             console.error('Error:', error);
           });
 
-        api.get(`/Event/FollowedClubs?token=${user.token}`)
+        api.get(`/Event/FollowedClubs?token=${userData.token}`)
         .then((response) => {
             setClubs(response.data)
             console.log('Data clubs:', response.data);
@@ -122,7 +107,7 @@ function FavoriteScreen(props){
             console.error('Error:', error);
         });
 
-        api.get(`/Event/Friends?token=${user.token}`)
+        api.get(`/Event/Friends?token=${userData.token}`)
         .then((response) => {   
             setFriends(response.data)
             console.log('Data clubs:', response.data);
@@ -131,7 +116,7 @@ function FavoriteScreen(props){
             console.error('Error:', error);
         });
         
-      }, [props, isFocused]);
+      }, [userData, isFocused]);
 
     return(
         <View style={styles.container}> 

@@ -4,17 +4,19 @@ const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
 import api from '../api/axiosConfig'
 import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useSelector, useDispatch } from 'react-redux';
 
 
-function SearchScreen({user}) {
+function SearchScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const [users, setUsers] = useState([])
     const navigation = useNavigation();
 
+    const userData = useSelector(state => state.user.userData);
 
     const handleSearch = (query) => {
       setSearchQuery(query);
-      console.log(user)
+      console.log(userData)
 
       api.get(`/Event/SearchUsers?searchString=${query}`)
       .then((response) => {
@@ -31,12 +33,12 @@ function SearchScreen({user}) {
     return (
             <View style={styles.container}>
                 <View style={{width: '90%', marginTop: 20}}>
-                    <Text style={styles.title}>Search</Text>
                     <TextInput
                     style={styles.input}
                     placeholder="Search"
                     onChangeText={handleSearch}
                     value={searchQuery}
+                    placeholderTextColor='#d1d1d1'
                     />
                     <View style={styles.divider}/>
                     <View style={{ height: '90%'}}>
@@ -82,12 +84,12 @@ const styles = StyleSheet.create({
     input: {
         height: 40,
         width: '100%',
+        color: 'white',
         marginVertical: 5,
-        borderWidth: 1,
-        padding: 10,
-        borderRadius: 10,
-        backgroundColor: 'white',
-        color: 'black',
+        borderBottomWidth: 1, // Add a bottom border
+      borderBottomColor: 'white', // Set the color for the bottom border
+        fontFamily: 'Montserrat_400Regular',
+
     },
     divider: {
         marginTop: '3%',

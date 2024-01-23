@@ -2,43 +2,72 @@ import {View, Text, ImageBackground, Image, StyleSheet, TouchableOpacity} from '
 import { useState } from 'react';
 import Login from './Login';
 import Signup from './Signup/Signup';
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+
+const Stack = createStackNavigator();
+
+const WelcomeScreen = ({ navigation }) => (
+    <ImageBackground
+        source={{uri: 'https://www.hse.ru/data/2021/01/29/1404113422/4e85321c55852563872ba13ec6f60c2.jpg'}} // Replace with the path to your image
+        style={styles.imageBackground}
+        blurRadius={3}
+    >
+        <View style={styles.overlay} />
+        <View>
+            <Text style={styles.text}>Welcome to</Text>
+            <Text style={styles.textBold}>kucial</Text>
+        </View>
+        <View style={{
+            width: '80%',
+        }}>
+            <TouchableOpacity onPress={() => navigation.navigate("Login")} style={styles.button}>
+                <Text style={{...styles.text, color: 'white'}}>Sign in</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("Signup")} style={styles.button}>
+                <Text style={{...styles.text, color: 'white'}}>Sign Up</Text>
+            </TouchableOpacity>
+        </View>
+    </ImageBackground>
+  );
 
 
+function Welcome(){
+    //const [content, setContent] = useState('welcome')
 
-function Welcome({setUser}){
-    const [content, setContent] = useState('welcome')
-
-    const Content = () =>{
-        if(content === 'welcome'){
-            return <ImageBackground
-                        source={{uri: 'https://www.hse.ru/data/2021/01/29/1404113422/4e85321c55852563872ba13ec6f60c2.jpg'}} // Replace with the path to your image
-                        style={styles.imageBackground}
-                        blurRadius={3}
-                    >
-                        <View>
-                            <Text style={styles.text}>Welcome to</Text>
-                            <Text style={styles.textBold}>kucial</Text>
-                        </View>
-                        <View style={{
-                            width: '80%',
-                        }}>
-                            <TouchableOpacity onPress={() => setContent('login')} style={styles.button}>
-                                <Text style={{...styles.text, color: 'black'}}>Sign in</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setContent('signup')} style={styles.button}>
-                                <Text style={{...styles.text, color: 'black'}}>Sign Up</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </ImageBackground>
-        }else if (content === 'login'){
-            return <Login setUser={setUser}/>
-        }else{
-            return <Signup setUser={setUser} setMainContent={setContent}/>
-        }
-    }
+    // const Content = () =>{
+    //     if(content === 'welcome'){
+            
+    //     }else if (content === 'login'){
+    //         return <Login/>
+    //     }else{
+    //         return <Signup setMainContent={setContent}/>
+    //     }
+    // }
 
     return (
-        <Content/>   
+        <NavigationContainer>
+            <Stack.Navigator headerMode="none">
+                <Stack.Screen name="Welcome" component={WelcomeScreen} 
+                    options={{
+                        headerShown: false,
+                        presentation: 'transparentModal',
+                    }}
+                />
+                <Stack.Screen name="Login" component={Login}
+                    options={{
+                        headerShown: false,
+                        presentation: 'transparentModal',
+                    }} 
+                />
+                <Stack.Screen name="Signup" component={Signup} 
+                    options={{
+                        headerShown: false,
+                        presentation: 'transparentModal',
+                    }} 
+                />
+            </Stack.Navigator>
+        </NavigationContainer>
     )
 }
 
@@ -51,7 +80,11 @@ const styles = StyleSheet.create({
       flex: 1, // This makes the image cover the entire view
       resizeMode: 'cover', // You can adjust the resizeMode as needed
       justifyContent: 'space-around',
-      alignItems: 'center'
+      alignItems: 'center',
+    },
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)', 
     },
     text: {
       color: 'white',
@@ -67,7 +100,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 10,
         marginTop: 20,
-        backgroundColor: 'white',
+        borderWidth: 1,
+        borderColor: 'white',
         borderRadius: 10,
         alignItems: 'center'
     },

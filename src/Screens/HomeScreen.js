@@ -1,14 +1,35 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView, Platform, NativeModules, Button, Image, Pressable, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TextInput,Animated, TouchableOpacity, SafeAreaView, Platform, NativeModules, Button, Image, Pressable, ScrollView } from 'react-native';
 import api from '../api/axiosConfig'
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
+import React, {useRef, useEffect} from 'react';
 
 import { formatTime, formatDate } from '../utils/dateHelpers'; 
 
+const FadeInView = props => {
+  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
 
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
+  return (
+    <Animated.View // Special animatable View
+      style={{
+        ...props.style,
+        opacity: fadeAnim, // Bind opacity to animated value
+      }}>
+      {props.children}
+    </Animated.View>
+  );
+};
 
 function HomeScreen(props) {
   const [text, onChangeText] = useState('Search by event or club...');
@@ -109,6 +130,7 @@ function HomeScreen(props) {
         </ScrollView>
       </View>
     </View>
+
   );
 }
 
@@ -146,7 +168,7 @@ button: {
 },
 text: {
     fontSize: 16,
-    color: 'white',
+    color: '#ab162b',
     padding: 10,
     fontFamily: 'Montserrat_400Regular'
 },

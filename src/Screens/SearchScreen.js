@@ -38,9 +38,8 @@ function SearchScreen() {
                     placeholder="Search"
                     onChangeText={handleSearch}
                     value={searchQuery}
-                    placeholderTextColor='#d1d1d1'
+                    placeholderTextColor='grey'
                     />
-                    <View style={styles.divider}/>
                     <View style={{ height: '90%'}}>
                         <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center'}}>
                         {users.map((user, index) => (
@@ -87,8 +86,9 @@ const styles = StyleSheet.create({
         color: 'white',
         marginVertical: 5,
         borderBottomWidth: 1, // Add a bottom border
-      borderBottomColor: 'white', // Set the color for the bottom border
+        borderBottomColor: '#ab162b', // Set the color for the bottom border
         fontFamily: 'Montserrat_400Regular',
+        fontSize: 20
 
     },
     divider: {

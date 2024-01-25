@@ -30,7 +30,7 @@ const validatePassword = (password, setPasswordError) => {
 };
 
 
-function Login({}){
+function Login({navigation}){
     const [email, onChangeUsername] = useState('');
     const [password, onChangePassword] = useState('');
 
@@ -74,6 +74,7 @@ function Login({}){
                 console.log('Data:', response.data);
                 //setUser({...response.data, token: token})
                 dispatch(setUserData({...response.data, token: token}));
+                navigation.navigate("MainApp")
                 setIsLoading(false);
             })
             .catch((error) => {

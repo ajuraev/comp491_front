@@ -65,7 +65,7 @@ function OtherProfileScreen(props){
         <View style={styles.container}>
             <View style={{...styles.container1}}>
                 <TouchableOpacity  
-                    onPress={() => navigation.navigate('Home')} 
+                    onPress={() => navigation.goBack() } 
                     style={styles.iconButton}>
                     <Ionicons name="arrow-back-outline" color={"white"} size={25} />
                 </TouchableOpacity>
@@ -104,8 +104,8 @@ function OtherProfileScreen(props){
                     <ScrollView contentContainerStyle={{ width: '95%', flexGrow: 1, alignItems: 'center'}}>
                     {posts.map((post, index) => (
                         <TouchableOpacity 
-                        onPress={() => navigation.navigate('EventInfo', { post: post})} 
-                        key={index} style={{ flexDirection: 'row', width: '95%', justifyContent: 'center', margin: 10, padding: 10, backgroundColor: 'black', borderRadius: 10 }}>
+                            onPress={() => navigation.navigate('EventInfo', { post: post})} 
+                            key={index} style={{ flexDirection: 'row', width: '95%', justifyContent: 'center', margin: 10, padding: 10, backgroundColor: 'black', borderRadius: 10 }}>
                         <View style={{ flex: 1, justifyContent: 'space-between' }}>
                             <View>
                             <Text style={styles.postDate}>{formatTime(post.event_date)}, {post.location}</Text>

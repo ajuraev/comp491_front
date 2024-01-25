@@ -124,35 +124,17 @@ function FavoriteScreen(){
                 <Text style={styles.title}>Favorites</Text>
                 <View style={{flexDirection: 'row'}}>
                     <TouchableOpacity onPress={() => setContent(0)}>
-                        <Text style={{
-                            fontSize: 16,
-                            color: '#00adb5',
-                            fontFamily: 'Montserrat_400Regular',
-                            paddingRight: 15,
-                            textDecorationLine: content == 0 ? 'underline' : 'none',
-                            }}>
+                        <Text style={{...styles.textButton, textDecorationLine: content == 0 ? 'underline' : 'none'}}>
                             Events
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => setContent(1)}>
-                        <Text style={{
-                            fontSize: 16,
-                            color: '#00adb5',
-                            paddingRight: 15,
-                            fontFamily: 'Montserrat_400Regular',
-                            textDecorationLine: content == 1 ? 'underline' : 'none',
-                            }}>
+                    <Text style={{...styles.textButton, textDecorationLine: content == 1 ? 'underline' : 'none'}}>
                             Clubs
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => setContent(2)}>
-                        <Text style={{
-                            fontSize: 16,
-                            color: '#00adb5',
-                            fontFamily: 'Montserrat_400Regular',
-                            textDecorationLine: content == 2 ? 'underline' : 'none',
-
-                            }}>
+                        <Text style={{...styles.textButton, textDecorationLine: content == 2 ? 'underline' : 'none'}}>
                             Friends
                         </Text>
                     </TouchableOpacity>
@@ -180,10 +162,16 @@ const styles = StyleSheet.create({
     },
     divider: {
       marginTop: '3%',
-      borderBottomColor: '#393e46',
+      borderBottomColor: '#ab162b',
       marginBottom: 10,
       borderBottomWidth: 1,
       alignSelf:'stretch'
+    },
+    textButton: {
+        fontSize: 16,
+        color: '#ab162b',
+        fontFamily: 'Montserrat_400Regular',
+        paddingRight: 15,
     },
     input: {
         height: 40,

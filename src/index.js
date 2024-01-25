@@ -1,4 +1,4 @@
-import { AppRegistry } from 'react-native';
+import { AppRegistry, KeyboardAvoidingView } from 'react-native';
 import App from './App'; // Import your main App component
 import React from 'react';
 import { Provider } from 'react-redux';

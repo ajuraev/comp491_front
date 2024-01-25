@@ -4,16 +4,15 @@ const { StatusBarManager } = NativeModules;
 import { useState, useEffect } from "react";
 import api from '../api/axiosConfig'
 import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 
 import { formatTime, formatDate } from '../utils/dateHelpers'; 
 import { useSelector, useDispatch } from 'react-redux';
 import { setUserData } from "../redux/slices/userSlice";
 
-
-function ProfileScreen(){
+function ProfileScreen({navigation}){
     const [posts, setPosts] = useState([])
     const isFocused = useIsFocused();
-    const navigation = useNavigation();
     
     const [content, setContent] = useState(0)
 
@@ -206,6 +205,19 @@ function ProfileScreen(){
         )
     }
 
+    const handleExit = () => {
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Auth' }],
+            })
+        );
+
+        setTimeout(() => {
+            dispatch(setUserData(null));
+        }, 1000);
+    }
+
     return(
         <View style={styles.container}>
             <View style={styles.container1}>
@@ -219,7 +231,7 @@ function ProfileScreen(){
                     </TouchableOpacity>
                 )}
                 <Text style={styles.text}>@{userData.username}</Text>
-                <TouchableOpacity onPress={() => dispatch(setUserData(null))} style={styles.iconButton}>
+                <TouchableOpacity onPress={handleExit} style={styles.iconButton}>
                     <Ionicons name="exit-outline" color={"white"} size={25}/>
                 </TouchableOpacity>
             </View>

@@ -7,8 +7,13 @@ import { NavigationContainer } from '@react-navigation/native';
 
 const Stack = createStackNavigator();
 
-const WelcomeScreen = ({ navigation }) => (
-    <ImageBackground
+
+
+function WelcomeScreen({navigation}){
+
+
+    return (
+        <ImageBackground
         source={{uri: 'https://www.hse.ru/data/2021/01/29/1404113422/4e85321c55852563872ba13ec6f60c2.jpg'}} // Replace with the path to your image
         style={styles.imageBackground}
         blurRadius={3}
@@ -29,45 +34,6 @@ const WelcomeScreen = ({ navigation }) => (
             </TouchableOpacity>
         </View>
     </ImageBackground>
-  );
-
-
-function Welcome(){
-    //const [content, setContent] = useState('welcome')
-
-    // const Content = () =>{
-    //     if(content === 'welcome'){
-            
-    //     }else if (content === 'login'){
-    //         return <Login/>
-    //     }else{
-    //         return <Signup setMainContent={setContent}/>
-    //     }
-    // }
-
-    return (
-        <NavigationContainer>
-            <Stack.Navigator headerMode="none">
-                <Stack.Screen name="Welcome" component={WelcomeScreen} 
-                    options={{
-                        headerShown: false,
-                        presentation: 'transparentModal',
-                    }}
-                />
-                <Stack.Screen name="Login" component={Login}
-                    options={{
-                        headerShown: false,
-                        presentation: 'transparentModal',
-                    }} 
-                />
-                <Stack.Screen name="Signup" component={Signup} 
-                    options={{
-                        headerShown: false,
-                        presentation: 'transparentModal',
-                    }} 
-                />
-            </Stack.Navigator>
-        </NavigationContainer>
     )
 }
 
@@ -108,4 +74,4 @@ const styles = StyleSheet.create({
   });
 
 
-export default Welcome
+export default WelcomeScreen

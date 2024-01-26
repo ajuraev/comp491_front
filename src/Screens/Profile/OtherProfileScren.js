@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, Platform, TouchableOpacity, ScrollView, Image,N
 import { Ionicons } from '@expo/vector-icons';
 const { StatusBarManager } = NativeModules;
 import { useState, useEffect } from "react";
-import api from '../api/axiosConfig'
+import api from '../../api/axiosConfig'
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 
 const formatTime = (dateString) => {

@@ -7,11 +7,15 @@ import {Animated, Text, View} from 'react-native';
 
 import HomeScreen from '../Screens/HomeScreen'
 import CreateScreen from '../Screens/CreateScreen';
-import ProfileScreen from '../Screens/ProfileScreen';
+import ProfileScreen from '../Screens/Profile/ProfileScreen';
 import SearchScreen from '../Screens/SearchScreen';
 import FavoriteScreen from '../Screens/FavoriteScreen';
 import EventInfoScreen from '../Screens/EventInfoScreen';
-import OtherProfileScreen from '../Screens/OtherProfileScren'// Import other screens and icons
+import OtherProfileScreen from '../Screens/Profile/OtherProfileScren'// Import other screens and icons
+import FriendRequestsScreen from '../Screens/Profile/FriendRequests';
+import EditProfileScreen from '../Screens/Profile/EditProfileScreen';
+
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator()
 
@@ -31,11 +35,13 @@ const HomeStack = () => {
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="EventInfo" component={EventInfoScreen} />
         <Stack.Screen name="OtherProfile" component={OtherProfileScreen} />
+        <Stack.Screen name="FriendRequests" component={FriendRequestsScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       </Stack.Navigator>
     );
   };
 
-  const FavoritesStack = () => {
+  const FavoritesStack = () => {    
     return (
       <Stack.Navigator headerMode="none">
         <Stack.Screen name="Favorites" component={FavoriteScreen} />

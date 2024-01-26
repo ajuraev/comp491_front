@@ -11,11 +11,11 @@ import { LogBox } from 'react-native';
 import { Provider } from 'react-redux';
 import store from './redux/store';
 import { useSelector, useDispatch } from 'react-redux';
-import MainTabNavigator from './navigation/MainTabNavigator';
+import MainTabNavigator from './Screens/navigation/MainTabNavigator';
 
 import * as SplashScreen from 'expo-splash-screen';
 import Welcome from './Login/WelcomeScreen'
-import AuthStackNavigator from './navigation/AuthStackNavigator';
+import AuthStackNavigator from './Screens/navigation/AuthStackNavigator';
 
 
 const MyTheme = {

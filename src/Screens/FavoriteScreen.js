@@ -9,11 +9,12 @@ import { set } from "date-fns";
 import { formatTime, formatDate } from '../utils/dateHelpers'; 
 import { useSelector, useDispatch } from 'react-redux';
 
-
+import EventList from "../components/EventList";
 
 
 function FavoriteScreen(){
     const [favouriteEvents, setFavouriteEvents] = useState([])
+    const [joinedEvents, setJoinedEvents] = useState([])
     const [clubs, setClubs] = useState([])
     const [friends, setFriends] = useState([])
     const [content, setContent] = useState(0)
@@ -22,37 +23,7 @@ function FavoriteScreen(){
     const userData = useSelector(state => state.user.userData);
 
 
-    const EventsList = ({posts}) => {  
-        return(
-            <ScrollView contentContainerStyle={{ width: '100%', flexGrow: 1, alignItems: 'center'}}>
-                {posts.map((post, index) => (
-                    <TouchableOpacity 
-                    onPress={() => navigation.navigate('EventInfo', { post: post})} 
-                    key={index} style={{ flexDirection: 'row', width: '100%', justifyContent: 'center', margin: 10, padding: 10, backgroundColor: 'black', borderRadius: 10 }}>
-                    <View style={{ flex: 1, justifyContent: 'space-between' }}>
-                        <View>
-                        <Text style={styles.postDate}>{formatTime(post.event_date)}, {post.location}</Text>
-                        <Text style={styles.postDate}>{formatDate(post.event_date)}</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 5 }}>
-                            <Ionicons name="person-outline" color={'white'} size={10} />
-                            <Text style={styles.participantCount}>{post.users_joining.length}</Text>
-                        </View>
-                        </View>
-                        <View style={{ marginTop: 0 }}>
-                        <Text style={styles.postTitle}>{post.title}</Text>
-                        <Text style={styles.postDate}>{post.ownerId}</Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', marginRight: 20 }}>
-                        </View>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
-                    </View>
-                    </TouchableOpacity>
-                    ))}
-            </ScrollView>
-        )
-    }
+    
 
     const UsersList = ({users}) => {
 
@@ -79,11 +50,13 @@ function FavoriteScreen(){
 
     const Content = () => {
         if(content == 0){
-            return <EventsList posts={favouriteEvents}/>
+            return <EventList navigation={navigation} posts={favouriteEvents}/>
         }else if(content == 1){
             return <UsersList users={clubs}/>
         }else if(content == 2){
             return <UsersList users={friends}/>
+        }else if(content == 3){
+            return <EventList navigation={navigation} posts={joinedEvents}/>
         }
     }
 
@@ -92,6 +65,15 @@ function FavoriteScreen(){
         api.get(`/Event/LikedPostsOfUser?token=${userData.token}`)
           .then((response) => {
             setFavouriteEvents(response.data)
+            console.log('Data:', response.data);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+
+          api.get(`/Event/JoiningPostsOfUser?token=${userData.token}`)
+          .then((response) => {
+            setJoinedEvents(response.data)
             console.log('Data:', response.data);
           })
           .catch((error) => {
@@ -120,26 +102,34 @@ function FavoriteScreen(){
 
     return(
         <View style={styles.container}> 
-            <View style={{width: '90%', marginTop: 20}}>
-                <Text style={styles.title}>Favorites</Text>
-                <View style={{flexDirection: 'row'}}>
-                    <TouchableOpacity onPress={() => setContent(0)}>
-                        <Text style={{...styles.textButton, textDecorationLine: content == 0 ? 'underline' : 'none'}}>
-                            Events
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setContent(1)}>
-                    <Text style={{...styles.textButton, textDecorationLine: content == 1 ? 'underline' : 'none'}}>
-                            Clubs
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setContent(2)}>
-                        <Text style={{...styles.textButton, textDecorationLine: content == 2 ? 'underline' : 'none'}}>
-                            Friends
-                        </Text>
-                    </TouchableOpacity>
-                </View>
+            <View style={{width: '100%', alignItems: 'center', marginTop: 20}}>
+                <View style={{width: '90%'}}>
+                    <Text style={styles.title}>Favorites</Text>
+                    <View style={{flexDirection: 'row'}}>
+                        <TouchableOpacity onPress={() => setContent(0)}>
+                            <Text style={{...styles.textButton, textDecorationLine: content == 0 ? 'underline' : 'none'}}>
+                                Events
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setContent(1)}>
+                        <Text style={{...styles.textButton, textDecorationLine: content == 1 ? 'underline' : 'none'}}>
+                                Clubs
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setContent(2)}>
+                            <Text style={{...styles.textButton, textDecorationLine: content == 2 ? 'underline' : 'none'}}>
+                                Friends
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setContent(3)}>
+                            <Text style={{...styles.textButton, textDecorationLine: content == 3 ? 'underline' : 'none'}}>
+                                Joining
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 <View style={styles.divider}/>
+                </View>
+
                 <Content/>
             </View>
         </View>

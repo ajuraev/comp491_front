@@ -5,15 +5,15 @@ import { Ionicons } from '@expo/vector-icons';
 import React, {useRef, useEffect} from 'react';
 import {Animated, Text, View} from 'react-native';
 
-import HomeScreen from '../Screens/HomeScreen'
-import CreateScreen from '../Screens/CreateScreen';
-import ProfileScreen from '../Screens/Profile/ProfileScreen';
-import SearchScreen from '../Screens/SearchScreen';
-import FavoriteScreen from '../Screens/FavoriteScreen';
-import EventInfoScreen from '../Screens/EventInfoScreen';
-import OtherProfileScreen from '../Screens/Profile/OtherProfileScren'// Import other screens and icons
-import FriendRequestsScreen from '../Screens/Profile/FriendRequests';
-import EditProfileScreen from '../Screens/Profile/EditProfileScreen';
+import HomeScreen from '../HomeScreen'
+import CreateScreen from '../CreateScreen';
+import ProfileScreen from '../Profile/ProfileScreen';
+import SearchScreen from '../SearchScreen';
+import FavoriteScreen from '../FavoriteScreen';
+import EventInfoScreen from '../EventInfoScreen';
+import OtherProfileScreen from '../Profile/OtherProfileScren'// Import other screens and icons
+import FriendRequestsScreen from '../Profile/FriendRequests';
+import EditProfileScreen from '../Profile/EditProfileScreen';
 
 
 const Stack = createStackNavigator();

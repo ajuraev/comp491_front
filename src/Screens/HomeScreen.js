@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import React, {useRef, useEffect} from 'react';
+import EventList from '../components/EventList';
 
 import { formatTime, formatDate } from '../utils/dateHelpers'; 
 
@@ -102,32 +103,8 @@ function HomeScreen(props) {
         </TouchableOpacity>
       </View>
       <View style={styles.divider}/>
-      <View style={{ flex: 1, height: '90%' }}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
-          {posts.map((post, index) => (
-            <TouchableOpacity 
-              onPress={() => navigation.navigate('EventInfo', { post: post})} 
-              key={index} style={{ flexDirection: 'row', width: '95%', justifyContent: 'center', margin: 10, padding: 10, backgroundColor: 'black', borderRadius: 10 }}>
-              <View style={{ flex: 1, justifyContent: 'space-between' }}>
-                <View>
-                  <Text style={styles.postDate}>{formatTime(post.event_date)}, {post.location}</Text>
-                  <Text style={styles.postDate}>{formatDate(post.event_date)}</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 5 }}>
-                    <Ionicons name="person-outline" color={'white'} size={10} />
-                    <Text style={styles.participantCount}>{post.users_joining.length}</Text>
-                  </View>
-                </View>
-                <View style={{ marginTop: 0 }}>
-                  <Text style={styles.postTitle}>{post.title}</Text>
-                  <Text style={styles.postDate}>{post.ownerId}</Text>
-                </View>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+      <View style={{ flex: 1}}>
+        <EventList navigation={navigation} posts={posts}/>
       </View>
     </View>
 
@@ -142,7 +119,6 @@ container: {
     paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 50,
   },
 divider: {
-  marginTop: '3%',
   borderBottomColor: '#393e46',
   borderBottomWidth: 1,
   alignSelf:'stretch'
@@ -167,15 +143,24 @@ button: {
     minWidth: '45%'
 },
 text: {
-    fontSize: 16,
+    fontSize: 20,
     color: '#ab162b',
     padding: 10,
     fontFamily: 'Montserrat_400Regular'
 },
 postTitle: {
   fontSize: 16,
-  color: 'white',
-  fontFamily: 'Montserrat_400Regular'
+  color: 'black',
+  fontFamily: 'Montserrat_400Regular',
+  paddingVertical: 10,
+  paddingHorizontal: 16
+},
+postOwner: {
+  fontSize: 12,
+  color: 'black',
+  fontFamily: 'Montserrat_400Regular',
+  paddingHorizontal: 16,
+  paddingBottom: 10
 },
 postDate: {
   fontSize: 12,
@@ -188,15 +173,24 @@ postParticipants: {
   fontFamily: 'Montserrat_400Regular'
 },
 participantCount: {
-  fontSize: 9,
-  color: 'white',
+  fontSize: 16,
+  color: 'black',
   fontFamily: 'Montserrat_400Regular'
 },
 postImage: {
     aspectRatio: 4/3, // 1:1 aspect ratio (square)
     width: '100%',  // You can adjust the width as needed
     alignSelf: 'center', // Center the image horizontally
-    borderRadius: 5
+    borderRadius: 15,
+},
+postInfoContainer: {
+  position: 'absolute',
+  backgroundColor: 'white',
+  borderRadius: 10,
+  width: '90%',
+  left: '5%',
+  right: '5%',
+  bottom: '5%'
 }
 });
 

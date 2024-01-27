@@ -17,7 +17,7 @@ function EventList ({navigation, posts}){
                   ...StyleSheet.absoluteFillObject,
                   backgroundColor: 'rgba(0, 0, 0, 0.3)',
                 }} />
-                <View style={{ position: 'absolute', flexDirection: 'row', alignItems: 'center', left: '5%', top: '5%', backgroundColor: 'white', padding:10,borderRadius: 50}}>
+                <View style={{ position: 'absolute', flexDirection: 'row', alignItems: 'center', left: '5%', top: '5%', backgroundColor: 'white', padding:10,borderRadius: 50, elevation: 20}}>
                     <Ionicons name="person-outline" color={'black'} size={14} />
                     <Text style={styles.participantCount}> {post.users_joining.length}</Text>
                   </View>
@@ -115,7 +115,8 @@ const styles = StyleSheet.create({
       width: '90%',
       left: '5%',
       right: '5%',
-      bottom: '5%'
+      bottom: '5%',
+      elevation: 20
     }
     });
 export default EventList

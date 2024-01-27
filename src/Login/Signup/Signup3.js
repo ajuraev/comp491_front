@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, NativeModules} from "react-native"
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator, TextInput, StyleSheet, NativeModules} from "react-native"
 const { StatusBarManager } = NativeModules;
 import api from '../../api/axiosConfig'
 import { useState, useEffect } from "react";
@@ -6,9 +6,10 @@ import { useState, useEffect } from "react";
 
 
 
-function Signup3({setContent, userInfo, userImage}){
+function Signup3({navigation, userInfo, userImage}){
     const [enteredCode, setEnteredCode] = useState('')
     const [code, setCode] = useState(0)
+    const [isLoading, setIsLoading] = useState(false)
 
 
     useEffect(() => {
@@ -16,9 +17,16 @@ function Signup3({setContent, userInfo, userImage}){
     }, []);
 
     const handleSubmit = () => {
-        if(enteredCode == code){
+
+        if(code > 0 && enteredCode == code){
             postUser()
         }else{
+            Alert.alert('','Wrong code.',[
+                {text: 'OK', onPress: () => console.log('OK Pressed')},
+              ],
+              {
+                cancelable: true,
+              });
             console.log('Error wrong code')
         }
     }
@@ -50,6 +58,8 @@ function Signup3({setContent, userInfo, userImage}){
         formData.append('password', userInfo.password);
         formData.append('profileImg', userImage);
 
+
+        setIsLoading(true)
         api.post('/Event/user', formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
@@ -59,14 +69,15 @@ function Signup3({setContent, userInfo, userImage}){
             // Handle the successful response here
             console.log('Data:', response.data);
             //setUser(response.data);
-            setContent('login');
-
-
-
+            navigation.navigate('Login')
         })
         .catch((error) => {
             // Handle any errors here
+            setIsLoading(false)
             console.error('Error:', error);
+        })
+        .finally((error) => {
+            // Handle any errors here
         });
     }
 
@@ -82,12 +93,16 @@ function Signup3({setContent, userInfo, userImage}){
                 />
                 <View style={{flexDirection: 'row', justifyContent:'center', marginTop: 20}}>
                     <Text style={styles.text}>I didn't receive a code. Please, </Text>
-                    <TouchableOpacity onPress={handleResendCode}>
+                    <TouchableOpacity onPress={!isLoading ? handleResendCode : null}>
                         <Text style={styles.resendCodeText}>re-send code</Text>
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity onPress={handleSubmit} style={styles.button}>
-                    <Text style={styles.buttonText}>Verify</Text>
+                <TouchableOpacity onPress={!isLoading ? handleSubmit : null} style={styles.button}>
+                    {isLoading ? (
+                        <ActivityIndicator/>
+                    ) : (
+                        <Text style={styles.buttonText}>Verify</Text>
+                    )}
                 </TouchableOpacity>
             </View>
         </View>
@@ -98,7 +113,7 @@ function Signup3({setContent, userInfo, userImage}){
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#222831',
+      backgroundColor: 'black',
       alignItems: 'center',
       justifyContent: 'center',
     },

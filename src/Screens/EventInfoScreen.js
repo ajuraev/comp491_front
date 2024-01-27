@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image, NativeModules, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, NativeModules, ActivityIndicator,TouchableOpacity, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native'; // Import the hook for route parameters
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
@@ -9,73 +9,43 @@ import { useState } from 'react';
 import { formatTime, formatDate } from '../utils/dateHelpers'; 
 
 import { useSelector, useDispatch } from 'react-redux';
+import { setUserData } from '../redux/slices/userSlice';
+
+const updateUser = (token) => {
+
+  const dispatch = useDispatch();
 
 
+  api.get('/Event/loggedUser', {
+    params: {
+      token: token,
+    },
+  })
+  .then((response) => {
+      console.log('Data:', response.data);
+      dispatch(setUserData({...response.data, token: token}));
+  })
+  .catch((error) => {
+      console.error('Error:', error);
+  });
+}
 
+const FavoriteButton = ({userData, post}) => {
 
-
-function EventInfoScreen() {
-  const route = useRoute(); // Use the route hook to access parameters
-  const navigation = useNavigation();
-
-  const post = route.params?.post || null; // Access the postId parameter
-  const userData = useSelector(state => state.user.userData);
-
-  const [hasJoined, setHasJoined] = useState()
   const [hasFavourited, setHasFavourited] = useState()
-  const [hasFollowed, setHasFollowed] = useState()
-  const [hasPending, setHasPending] = useState()
+  const [isLoading, setIsLoading] = useState(false)
 
 
   useEffect(() => {
-    if (post && userData) {
-      // Check if the user has joined
-      console.log("User in info screen",userData)
-      console.log("Event info screen", post)
-      const isUserJoined = post.users_joining.includes(userData.email);
-      
-      setHasJoined(isUserJoined);
-  
-      const isFollowed = userData.friends.includes(post.ownerId); 
-      setHasFollowed(isFollowed)
-      console.log("Is followed", isFollowed)
-
-      const isPending = userData.out_requests.includes(post.ownerId);
-      setHasPending(isPending)
-
-      // Check if the user has favorited
-      const isUserFavourited = post.users_liked.includes(userData.email);
-      setHasFavourited(isUserFavourited);
-    }
-  }, [post, userData]);
-
-
-  const handleJoinEvent = (token, eventId) => {
-
-    if(hasJoined){
-      api.delete('/Event/RemoveUserJoinFromEvent', {data: { userToken: token, eventId: eventId }})
-      .then((response) => {
-        console.log("Success:", response.data);
-        setHasJoined(!hasJoined)
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-    }else{
-      api.post('/Event/JoinEvent', {userToken: token, eventId: eventId})
-      .then((response) => {
-        console.log("Success:", response.data);
-        setHasJoined(!hasJoined)
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
-    }
     
-  }
-  
+    const isUserFavourited = post.users_liked.includes(userData.email);
+    setHasFavourited(isUserFavourited);
+
+  },[]);
+
   const handleFavouriteEvent = (token, eventId) => {
   
+    setIsLoading(true)
     if(hasFavourited){
       api.delete('/Event/RemoveUserLikeFromPost', {data: { userToken: token, eventId: eventId }})
       .then((response) => {
@@ -84,6 +54,10 @@ function EventInfoScreen() {
       })
       .catch((error) => {
         console.error("Error:", error);
+      })
+      .finally(() => {
+        setIsLoading(false)
+        updateUser(userData.token)
       });
     }else{
     api.post('/Event/AddUserLikeToPost', {userToken: token, eventId: eventId})
@@ -93,9 +67,124 @@ function EventInfoScreen() {
       })
       .catch((error) => {
         console.error("Error:", error);
+      })
+      .finally(() => {
+        setIsLoading(false)
+        updateUser(userData.token)
       });
     }
   }
+
+  return (
+    <TouchableOpacity onPress={() => handleFavouriteEvent(userData.token,post.postId)} style={{ ...styles.followButton,  borderColor: hasFavourited ? 'red' : 'green'}}>
+      {isLoading ? 
+      (
+        <ActivityIndicator/>
+      ) 
+      : 
+      (        
+        <Text style={{ ...styles.text, fontSize: 14, color: 'white', textAlign: 'center' }}>{hasFavourited ? "Remove from Favorites" : "Add to Favorites"}</Text>
+      )
+      }
+    </TouchableOpacity>
+  )
+}
+
+const JoinButton = ({userData, post}) => {
+
+  const [hasJoined, setHasJoined] = useState()
+  const [isLoading, setIsLoading] = useState(false)
+
+
+  useEffect(() => {
+    
+    const isUserJoined = post.users_joining.includes(userData.email);
+    setHasJoined(isUserJoined);
+
+  },[]);
+
+  const handleJoinEvent = (token, eventId) => {
+
+    setIsLoading(true)
+    if(hasJoined){
+      api.delete('/Event/RemoveUserJoinFromEvent', {data: { userToken: token, eventId: eventId }})
+      .then((response) => {
+        console.log("Success:", response.data);
+        setHasJoined(!hasJoined)
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      })
+      .finally(() => {
+        setIsLoading(false)
+        updateUser(userData.token)
+      });
+    }else{
+      api.post('/Event/JoinEvent', {userToken: token, eventId: eventId})
+      .then((response) => {
+        console.log("Success:", response.data);
+        setHasJoined(!hasJoined)
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      })
+      .finally(() => {
+        setIsLoading(false)
+        updateUser(userData.token)
+      });
+    }
+    
+  }
+
+  return (
+    <TouchableOpacity onPress={() => handleJoinEvent(userData.token,post.postId)} style={{ ...styles.followButton, borderColor: hasJoined ? 'red' : 'green'}}>
+      {isLoading ? 
+      (
+        <ActivityIndicator/>
+      ) 
+      : 
+      (
+        <Text style={{ ...styles.text, fontSize: 14, color: 'white', textAlign: 'center' }}>{hasJoined ? "Leave" : "Join"}</Text>
+      )
+      }
+    </TouchableOpacity>
+  )
+}
+
+function EventInfoScreen({navigation}) {
+  const route = useRoute(); // Use the route hook to access parameters
+
+  const post = route.params?.post || null; // Access the postId parameter
+  const userData = useSelector(state => state.user.userData);
+
+  const [hasFollowed, setHasFollowed] = useState()
+  const [hasPending, setHasPending] = useState()
+
+
+  useEffect(() => {
+    if (post && userData) {
+      // Check if the user has joined
+      console.log("User in info screen",userData)
+      console.log("Event info screen", post)
+
+      
+  
+      const isFollowed = userData.friends.includes(post.ownerId); 
+      setHasFollowed(isFollowed)
+      console.log("Is followed", isFollowed)
+
+      const isPending = userData.out_requests.includes(post.ownerId);
+      setHasPending(isPending)
+
+      // Check if the user has favorited
+      
+    }
+  }, [post, userData]);
+
+
+  
+  
+  
 
   const handleFollowUser = (token, email) => {
 
@@ -131,20 +220,7 @@ function EventInfoScreen() {
     
   }
 
-  const updateUser = (token) => {
-    api.get('/Event/loggedUser', {
-      params: {
-        token: token,
-      },
-    })
-    .then((response) => {
-        console.log('Data:', response.data);
-        setUser({...response.data, token: token})
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
-  }
+  
 
   const handleDelete = () => {
     
@@ -160,7 +236,7 @@ function EventInfoScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={{width: '90%'}}>
+      <View style={{flex:1,width: '90%'}}>
         <View style={{flexDirection:'row', justifyContent: 'space-between'}}>
           <TouchableOpacity 
             onPress={() => navigation.goBack() } 
@@ -181,7 +257,7 @@ function EventInfoScreen() {
               {/* <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png' }} style={styles.avatarImage} /> */}
               <Text style={{ ...styles.text, fontSize: 14, color: 'black' }}>{post.ownerId}</Text>
             </View>
-            <TouchableOpacity onPress={() => handleFollowUser(userData.token,post.ownerId)} style={{...styles.followButton, backgroundColor: hasFollowed ? 'red' : (hasPending ? 'green' :'#3659e3')}}>
+            <TouchableOpacity onPress={() => handleFollowUser(userData.token,post.ownerId)} style={{...styles.pendingButton, backgroundColor: hasFollowed ? 'red' : (hasPending ? 'green' :'#3659e3')}}>
               <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>{hasFollowed ? "Unfollow" : (hasPending ? "Pending" : "Follow")}</Text>
             </TouchableOpacity>
           </TouchableOpacity>
@@ -205,13 +281,9 @@ function EventInfoScreen() {
               <Text style={{fontFamily: 'Montserrat_400Regular',fontSize: 12, color: 'white' }}>{post.price} ₺</Text>
             </View>
           </View>
-          <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-around', marginTop: 40 }}>
-            <TouchableOpacity onPress={() => handleJoinEvent(userData.token,post.postId)} style={{ ...styles.followButton, width: '40%', backgroundColor: hasJoined ? 'red' : '#3659e3'}}>
-              <Text style={{ ...styles.text, fontSize: 14, color: 'white', textAlign: 'center' }}>{hasJoined ? "Leave" : "Join"}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleFavouriteEvent(userData.token,post.postId)} style={{ ...styles.followButton, width: '40%', backgroundColor: hasFavourited ? 'red' : '#3659e3'}}>
-              <Text style={{ ...styles.text, fontSize: 14, color: 'white', textAlign: 'center' }}>{hasFavourited ? "Remove from Favorites" : "Add to Favorites"}</Text>
-            </TouchableOpacity>
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
+            <JoinButton userData={userData} post={post}/>
+            <FavoriteButton userData={userData} post={post}/>
           </View>
         </ScrollView>
 
@@ -255,19 +327,27 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       paddingVertical: 12,
       paddingHorizontal: 16,
-      borderRadius: 4,
+      borderRadius: 10,
       elevation: 3,
       backgroundColor: 'white',
-      minWidth: '45%'
+      minWidth: '25%'
   },
+  pendingButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    borderRadius: 10,
+    width: '40%',
+},
   followButton: {
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: '#3659e3',
     borderRadius: 10,
-    minWidth: '20%'
+    width: '45%',
+    minHeight: '35%',
+    borderWidth: 1
 },
   text: {
       fontSize: 16,

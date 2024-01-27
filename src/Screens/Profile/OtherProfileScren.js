@@ -4,6 +4,8 @@ const { StatusBarManager } = NativeModules;
 import { useState, useEffect } from "react";
 import api from '../../api/axiosConfig'
 import { useNavigation, useIsFocused } from '@react-navigation/native';
+import { useSelector, useDispatch } from 'react-redux';
+import EventList from "../../components/EventList";
 
 const formatTime = (dateString) => {
     const options = {
@@ -26,7 +28,9 @@ const formatTime = (dateString) => {
 
 function OtherProfileScreen(props){
     const targetEmail = props.route.params.email
-    const user = props.route.params.user
+
+    const userData = useSelector(state => state.user.userData);
+
     const [posts, setPosts] = useState([])
     const [targetUser, setTargetUser] = useState({})
     const isFocused = useIsFocused();
@@ -42,7 +46,7 @@ function OtherProfileScreen(props){
             // Handle the successful response here
             setTargetUser(response.data)
             console.log('Data targetUser:', response.data);
-            api.get(`/Event/PostsOfUser?email=${targetEmail}&token=${user.token}`)
+            api.get(`/Event/PostsOfUser?email=${targetEmail}&token=${userData.token}`)
                 .then((response) => {
                     // Handle the successful response here
                     setPosts(response.data)
@@ -101,34 +105,7 @@ function OtherProfileScreen(props){
             <View style={styles.divider}/>            
             <View style={{flex: 1, justifyContent: 'center', alignItems:'center'}}>
                 {posts.length !== 0 ? (
-                    <ScrollView contentContainerStyle={{ width: '95%', flexGrow: 1, alignItems: 'center'}}>
-                    {posts.map((post, index) => (
-                        <TouchableOpacity 
-                            onPress={() => navigation.navigate('EventInfo', { post: post})} 
-                            key={index} style={{ flexDirection: 'row', width: '95%', justifyContent: 'center', margin: 10, padding: 10, backgroundColor: 'black', borderRadius: 10 }}>
-                        <View style={{ flex: 1, justifyContent: 'space-between' }}>
-                            <View>
-                            <Text style={styles.postDate}>{formatTime(post.event_date)}, {post.location}</Text>
-                            <Text style={styles.postDate}>{formatDate(post.event_date)}</Text>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 5 }}>
-                                <Ionicons name="person-outline" color={'white'} size={10} />
-                                <Text style={styles.participantCount}>{post.users_joining.length}</Text>
-                            </View>
-                            </View>
-                            <View style={{ marginTop: 0 }}>
-                            <Text style={styles.postTitle}>{post.title}</Text>
-                            <Text style={styles.postDate}>{post.ownerId}</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', marginRight: 20 }}>
-                            <Text style={styles.postParticipants}>unal, gokber, abdulla and others are joining</Text>
-                            </View>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
-                        </View>
-                        </TouchableOpacity>
-                        ))}
-                    </ScrollView>
+                    <EventList navigation={navigation} posts={posts}/>
                 ) : (
                     <View style={{width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
                         <Ionicons name="calendar" color={"white"} size={150}/>

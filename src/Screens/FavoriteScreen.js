@@ -102,7 +102,7 @@ function FavoriteScreen(){
 
     return(
         <View style={styles.container}> 
-            <View style={{width: '100%', alignItems: 'center', marginTop: 20}}>
+            <View style={{flex: 1, width: '100%', alignItems: 'center', marginTop: 20}}>
                 <View style={{width: '90%'}}>
                     <Text style={styles.title}>Favorites</Text>
                     <View style={{flexDirection: 'row'}}>
@@ -129,7 +129,6 @@ function FavoriteScreen(){
                     </View>
                 <View style={styles.divider}/>
                 </View>
-
                 <Content/>
             </View>
         </View>
@@ -141,7 +140,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'column',
-        alignItems: 'center',
         paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 50,
     },
     title:{

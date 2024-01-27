@@ -32,7 +32,7 @@ function SearchScreen() {
   
     return (
             <View style={styles.container}>
-                <View style={{width: '90%', marginTop: 20}}>
+                <View style={{flex:1, width: '90%', marginTop: 20}}>
                     <TextInput
                     style={styles.input}
                     placeholder="Search"
@@ -40,7 +40,7 @@ function SearchScreen() {
                     value={searchQuery}
                     placeholderTextColor='grey'
                     />
-                    <View style={{ height: '90%'}}>
+                    <View style={{ flex: 1}}>
                         <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center'}}>
                         {users.map((user, index) => (
                             <TouchableOpacity  

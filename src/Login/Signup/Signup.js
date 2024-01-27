@@ -6,7 +6,7 @@ import Signup3 from "./Signup3";
 const { StatusBarManager } = NativeModules;
 
 
-function Signup({setMainContent}){
+function Signup({navigation}){
     const [content, setContent] = useState('2')
     const [userInfo, setUserInfo] = useState({})
     const [image, setUserImage] = useState(null)
@@ -18,7 +18,7 @@ function Signup({setMainContent}){
         }else if(content === '2'){
             return <Signup2 setUserInfo={setUserInfo} setContent={setContent} setUserImage={setUserImage}/>
         }else if(content === '3'){
-            return <Signup3 userInfo={userInfo} setContent={setMainContent} userImage={image}/>
+            return <Signup3 userInfo={userInfo} navigation={navigation} userImage={image}/>
         }
     }
     return (

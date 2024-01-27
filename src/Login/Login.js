@@ -1,8 +1,10 @@
 import {View, Text, ImageBackground, Image, TextInput, ActivityIndicator, StyleSheet, TouchableOpacity} from 'react-native'
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig'
 import { useSelector, useDispatch } from 'react-redux';
 import { setUserData } from '../redux/slices/userSlice';
+import { useNavigation, useFocusEffect, CommonActions } from '@react-navigation/native';
+import { BackHandler } from 'react-native';
 
 
 const validateEmail = (email, setEmailError) => {
@@ -21,7 +23,7 @@ const validatePassword = (password, setPasswordError) => {
     if (password === '') {
         setPasswordError('*Password is required');
         return false;
-    }else if(password.length <= 6){
+    }else if(password.length <= 5){
         setPasswordError('*Password length must be atleast 6');
         return false;
     }
@@ -40,6 +42,26 @@ function Login({navigation}){
     const [isLoading, setIsLoading] = useState(false);
 
     const dispatch = useDispatch();
+
+
+    useFocusEffect(
+        React.useCallback(() => {
+          const onBackPress = () => {
+            // Optionally do something when the back button is pressed
+            // ...
+            navigation.navigate('Welcome')
+            // Prevent going back to Signup
+            return true;
+          };
+    
+          // Add back button listener
+          BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    
+          // Remove listener on unmount
+          return () =>
+            BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        }, [])
+      );
 
 
     const handleSubmit = () => {

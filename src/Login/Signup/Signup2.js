@@ -1,9 +1,10 @@
-import { View, Text, TouchableOpacity,Image, TextInput,StyleSheet, NativeModules } from "react-native"
+import { View, Text, TouchableOpacity,Image,Alert,ScrollView, KeyboardAvoidingView, TextInput,StyleSheet, NativeModules } from "react-native"
 const { StatusBarManager } = NativeModules;
 import Checkbox from 'expo-checkbox';
 import { Camera, CameraType } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from "react";
+import { Ionicons } from '@expo/vector-icons';
 
 function Signup2({setContent, setUserInfo, setUserImage}){
     const [isChecked, setChecked] = useState(false);
@@ -14,8 +15,13 @@ function Signup2({setContent, setUserInfo, setUserImage}){
 
     const handleSubmit = () => {
        
-        if (!info.displayName || !info.username || !info.email || !info.password) {
-        
+        if (!info.displayName || !info.username || !info.email || !info.password || !image || !isChecked) {
+          Alert.alert('','Please fill in all the fields.',[
+            {text: 'OK', onPress: () => console.log('OK Pressed')},
+          ],
+          {
+            cancelable: true,
+          });
         } else {
             if (info.email.endsWith("@ku.edu.tr")) {
               setUserInfo({ ...info });
@@ -56,30 +62,43 @@ function Signup2({setContent, setUserInfo, setUserImage}){
       };
     
     return (
-        <View style={styles.container}>
+      <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0} // Adjust as needed
+      >
+        <ScrollView style={{ flex: 1,width: '100%'}}         
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled">
+          <View style={{ flex: 1, alignItems: 'center'}}>
             <Text style={styles.title}>Sign Up</Text>
-            <View style={styles.buttonContainer}>
-                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <TextInput
-                    style={styles.input}
-                    autoCapitalize='none'
-
-                    placeholder='Display name'
-                    onChangeText={(text) => setInfo({ ...info, displayName: text })}
-                    />
-                </View>
+            <View style={styles.form}>
+                <TouchableOpacity onPress={pickImage} style={styles.imgContainer}>
+                    {image ? <Image source={{ uri: image }} style={styles.img}/> :(
+                        <View style={styles.placeholderImg}>
+                          <Ionicons name="add-outline" color={"white"} size={75} />
+                        </View> 
+                    )}
+                </TouchableOpacity>
                 <TextInput
                     style={styles.input}
-                    placeholder='@Username'
                     autoCapitalize='none'
-
+                    placeholderTextColor='grey'
+                    placeholder='Display name'
+                    onChangeText={(text) => setInfo({ ...info, displayName: text })}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder='Username'
+                    autoCapitalize='none'
+                    placeholderTextColor='grey'
                     onChangeText={(text) => setInfo({ ...info, username: text })}
                 />
                 <TextInput
                     style={styles.input}
                     placeholder='Email'
                     autoCapitalize='none'
-
+                    placeholderTextColor='grey'
                     onChangeText={(text) => setInfo({ ...info, email: text })}
                     />
                 <TextInput
@@ -87,13 +106,9 @@ function Signup2({setContent, setUserInfo, setUserImage}){
                     onChangeText={(text) => setInfo({ ...info, password: text })}
                     secureTextEntry
                     autoCapitalize='none'
-
+                    placeholderTextColor='grey'
                     placeholder='Password'
                 />
-                {image && <Image source={{ uri: image }} style={{aspectRatio: 1, width: '75%', margin: 20, borderRadius: 10}} />}
-                  <TouchableOpacity onPress={pickImage} style={styles.buttonPic}>
-                    <Text style={{ ...styles.text, fontSize: 14, color: 'white' }}>Pick image</Text>
-                  </TouchableOpacity>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Checkbox
                         style={styles.checkbox}
@@ -107,8 +122,9 @@ function Signup2({setContent, setUserInfo, setUserImage}){
                     <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
             </View>
-            
-        </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     )
 }
 
@@ -116,11 +132,13 @@ function Signup2({setContent, setUserInfo, setUserImage}){
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#222831',
+      backgroundColor: 'black',
       alignItems: 'center',
+      paddingTop: Platform.OS === 'android' ? StatusBarManager.HEIGHT : 50,
     },
-    buttonContainer: {
-        width: '80%'
+    form: {
+        width: '80%',
+        gap: 15
     },
     title: {
         color: 'white',
@@ -135,28 +153,49 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat_400Regular',
     },
     buttonText: {
-        color: '#2e4374',
+        color: 'white',
         fontSize: 24,
         fontFamily: 'Montserrat_400Regular',
     },
     input: {
-        width: '100%', // Adjust width as needed
-        height: 50,   // Set a fixed height or adjust as needed
-        backgroundColor: 'white',
-        color: '#2e4374',
-        borderWidth: 1,
-        borderRadius: 10,
-        paddingLeft: 10,
-        marginVertical: 10,
-        fontFamily: 'Montserrat_400Regular'
+      height: 40,
+      width: '100%',
+      color: 'white',
+      borderWidth: 1, 
+      borderColor: 'white',
+      borderRadius: 10,
+      fontFamily: 'Montserrat_400Regular',
+      fontSize: 14,
+      padding: 10
+    },
+    img: {
+      width: '75%',
+      aspectRatio: 1, 
+      borderRadius: 200,
+      borderWidth: 1,
+      borderColor: 'white',
+    },
+    imgContainer: {
+      width: '100%',
+      marginBottom: 25,
+      alignItems: 'center'
+    },
+    placeholderImg: {  
+      aspectRatio: 1,
+      width: '75%',  
+      borderWidth: 1,
+      borderColor: 'white',
+      borderRadius: 200,
+      justifyContent: 'center',
+      alignItems:'center' 
     },
     button: {
         paddingHorizontal: 20,
         paddingVertical: 10,
-        marginTop: 20,
-        backgroundColor: 'white',
+        borderWidth: 1,
         borderRadius: 10,
-        alignItems: 'center'
+        alignItems: 'center',
+        borderColor: 'white'
     },
     buttonPic: {
         alignItems: 'center',
@@ -169,7 +208,6 @@ const styles = StyleSheet.create({
         marginTop: 10
     },
     checkbox: {
-        marginVertical: 8,
         marginRight: 8,
         height: 30,
         width: 30,

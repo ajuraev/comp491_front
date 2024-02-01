@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image, NativeModules, ActivityIndicator,TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, NativeModules, ActivityIndicator,TouchableOpacity, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native'; // Import the hook for route parameters
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,8 @@ import { useNavigation } from '@react-navigation/native';
 import api from '../api/axiosConfig'
 import { useState } from 'react';
 import { formatTime, formatDate } from '../utils/dateHelpers'; 
+import { Image } from 'expo-image';
+
 
 import { useSelector, useDispatch } from 'react-redux';
 import { setUserData } from '../redux/slices/userSlice';
@@ -151,6 +153,11 @@ const JoinButton = ({userData, post}) => {
   )
 }
 
+
+const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+
+
 function EventInfoScreen({navigation}) {
   const route = useRoute(); // Use the route hook to access parameters
 
@@ -162,13 +169,22 @@ function EventInfoScreen({navigation}) {
 
 
   useEffect(() => {
+    const fetchData = async () => {
+      // Fetch data based on postId
+      const postData = await fetchPostData(route.params.postId);
+      // Set state with fetched data
+    };
+    
+    fetchData();
+  }, [route.params.postId]);
+
+  useEffect(() => {
     if (post && userData) {
       // Check if the user has joined
       console.log("User in info screen",userData)
       console.log("Event info screen", post)
 
-      
-  
+
       const isFollowed = userData.friends.includes(post.ownerId); 
       setHasFollowed(isFollowed)
       console.log("Is followed", isFollowed)
@@ -180,11 +196,6 @@ function EventInfoScreen({navigation}) {
       
     }
   }, [post, userData]);
-
-
-  
-  
-  
 
   const handleFollowUser = (token, email) => {
 
@@ -220,8 +231,6 @@ function EventInfoScreen({navigation}) {
     
   }
 
-  
-
   const handleDelete = () => {
     
     api.delete(`/Event/post?postId=${post.postId}`)
@@ -250,11 +259,12 @@ function EventInfoScreen({navigation}) {
           </TouchableOpacity>
         </View>
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
+          <Image 
+            placeholder={blurhash}
+            source={{ uri: post.imageUrl }} style={styles.postImage} />
           <Text style={styles.title}>{post.title}</Text>
           <TouchableOpacity onPress={() => navigation.navigate('OtherProfile', {email: post.ownerId})} style={{...styles.button, flexDirection: 'row', justifyContent: 'space-between'}}>
             <View style={{flexDirection: 'row'}}>
-              {/* <Image source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png' }} style={styles.avatarImage} /> */}
               <Text style={{ ...styles.text, fontSize: 14, color: 'black' }}>{post.ownerId}</Text>
             </View>
             <TouchableOpacity onPress={() => handleFollowUser(userData.token,post.ownerId)} style={{...styles.pendingButton, backgroundColor: hasFollowed ? 'red' : (hasPending ? 'green' :'#3659e3')}}>
@@ -286,9 +296,7 @@ function EventInfoScreen({navigation}) {
             <FavoriteButton userData={userData} post={post}/>
           </View>
         </ScrollView>
-
       </View>
-      
     </View>
   );
 }
@@ -346,7 +354,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderRadius: 10,
     width: '45%',
-    minHeight: '35%',
+    height: '40%',
     borderWidth: 1
 },
   text: {

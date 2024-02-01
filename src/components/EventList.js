@@ -1,37 +1,72 @@
-import { StyleSheet, Text, View, TextInput,Animated, TouchableOpacity, SafeAreaView, Platform, NativeModules, Button, Image, Pressable, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TextInput,RefreshControl,FlatList,  TouchableOpacity, SafeAreaView, Platform, NativeModules, Button, Pressable, ScrollView } from 'react-native';
 const { StatusBarManager } = NativeModules;
 import { Ionicons } from '@expo/vector-icons';
 import { formatTime, formatDate } from '../utils/dateHelpers'; 
+import React, { useState, useCallback } from 'react';
+import { Image } from 'expo-image';
 
-function EventList ({navigation, posts}){
+const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+
+
+function EventList ({onRefreshParent, navigation, posts}){
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    // Place your data refreshing logic here
+    try {
+      // For example, fetch new posts
+      // await fetchNewPosts();
+      onRefreshParent()
+      console.log('Refreshing')
+    } catch (error) {
+      console.error(error);
+    }
+    setRefreshing(false);
+  }, []);
+
+  const renderItem = ({ item, index }) => (
+    <TouchableOpacity 
+      onPress={() => navigation.navigate('EventInfo', { post: item})} 
+      key={index} style={{width: '95%', margin: 10, padding: 10,  borderRadius: 10 }}>
+      <View style={{ flex: 1}}>
+        <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
+        <View style={{
+          ...StyleSheet.absoluteFillObject,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        }} />
+        <View style={{ position: 'absolute', flexDirection: 'row', alignItems: 'center', left: '5%', top: '5%', backgroundColor: 'white', padding:10,borderRadius: 50, elevation: 20}}>
+            <Ionicons name="person-outline" color={'black'} size={14} />
+            <Text style={styles.participantCount}> {item.users_joining.length}</Text>
+          </View>
+        <View  style={styles.postInfoContainer}>
+          <Text style={styles.postTitle}>{item.title}</Text>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}} >
+            <Text style={styles.postOwner}>{item.ownerId}</Text>
+            <Text style={{...styles.postOwner, color: 'grey'}}>{formatDate(item.event_date)}</Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}>
-          {posts.map((post, index) => (
-            <TouchableOpacity 
-              onPress={() => navigation.navigate('EventInfo', { post: post})} 
-              key={index} style={{width: '95%', margin: 10, padding: 10,  borderRadius: 10 }}>
-              <View style={{ flex: 1}}>
-                <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
-                <View style={{
-                  ...StyleSheet.absoluteFillObject,
-                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                }} />
-                <View style={{ position: 'absolute', flexDirection: 'row', alignItems: 'center', left: '5%', top: '5%', backgroundColor: 'white', padding:10,borderRadius: 50, elevation: 20}}>
-                    <Ionicons name="person-outline" color={'black'} size={14} />
-                    <Text style={styles.participantCount}> {post.users_joining.length}</Text>
-                  </View>
-                <View  style={styles.postInfoContainer}>
-                  <Text style={styles.postTitle}>{post.title}</Text>
-                  <View style={{flexDirection: 'row', justifyContent: 'space-between'}} >
-                    <Text style={styles.postOwner}>{post.ownerId}</Text>
-                    <Text style={{...styles.postOwner, color: 'grey'}}>{formatDate(post.event_date)}</Text>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+      <FlatList
+      data={posts}
+      renderItem={renderItem}
+      keyExtractor={(item, index) => index.toString()}
+      contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={["#ff0000", "#00ff00", "#0000ff"]}
+          tintColor="#ff0000"
+        />
+      }
+    />
     )
 }
 

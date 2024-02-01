@@ -7,7 +7,7 @@ const Stack = createStackNavigator();
 
 const AuthStackNavigator = () => {
   return (
-      <Stack.Navigator headerMode="none">
+      <Stack.Navigator headerShown={false}>
                 <Stack.Screen name="Welcome" component={WelcomeScreen} 
                     options={{
                         headerShown: false,

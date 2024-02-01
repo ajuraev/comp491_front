@@ -8,35 +8,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import React, {useRef, useEffect} from 'react';
 import EventList from '../components/EventList';
 
-import { formatTime, formatDate } from '../utils/dateHelpers'; 
 
-const FadeInView = props => {
-  const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
-
-  return (
-    <Animated.View // Special animatable View
-      style={{
-        ...props.style,
-        opacity: fadeAnim, // Bind opacity to animated value
-      }}>
-      {props.children}
-    </Animated.View>
-  );
-};
 
 function HomeScreen(props) {
-  const [text, onChangeText] = useState('Search by event or club...');
   const [posts, setPosts] = useState([])
   const [content, setContent] = useState(0)
-  const [openedEvent, setOpenedEvent] = useState(null)
   const isFocused = useIsFocused();
 
   const userData = useSelector(state => state.user.userData);
@@ -60,7 +36,7 @@ function HomeScreen(props) {
         // Handle any errors here
         console.error('Error:', error);
       });
-  }, [props, isFocused]);
+  }, []);
 
   const handleAll = () => {
     setContent(0)
@@ -104,7 +80,7 @@ function HomeScreen(props) {
       </View>
       <View style={styles.divider}/>
       <View style={{ flex: 1}}>
-        <EventList navigation={navigation} posts={posts}/>
+        <EventList onRefreshParent={handleAll} navigation={navigation} posts={posts}/>
       </View>
     </View>
 

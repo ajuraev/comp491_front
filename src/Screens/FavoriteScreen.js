@@ -22,7 +22,7 @@ function FavoriteScreen(){
     const isFocused = useIsFocused();
     const userData = useSelector(state => state.user.userData);
 
-
+    const [isLoading, setIsLoading] = useState(false)
     
 
     const UsersList = ({users}) => {
@@ -61,6 +61,9 @@ function FavoriteScreen(){
     }
 
     useEffect(() => {
+
+        setIsLoading(true)
+
         console.log("Mounting favouriteScreen")
         api.get(`/Event/LikedPostsOfUser?token=${userData.token}`)
           .then((response) => {
@@ -96,7 +99,11 @@ function FavoriteScreen(){
         })
         .catch((error) => {
             console.error('Error:', error);
+        })
+        .finally(() => {
+            setIsLoading(false)
         });
+
         
       }, [userData, isFocused]);
 
@@ -129,7 +136,7 @@ function FavoriteScreen(){
                     </View>
                 <View style={styles.divider}/>
                 </View>
-                <Content/>
+                {isLoading ? null : <Content/>}
             </View>
         </View>
     )

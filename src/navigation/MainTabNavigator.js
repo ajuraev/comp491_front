@@ -23,7 +23,6 @@ const HomeStack = () => {
     return (
       <Stack.Navigator
         headerMode="none"
-
       >
         <Stack.Screen name="Home" component={HomeScreen}/>
         <Stack.Screen name="EventInfo" component={EventInfoScreen} />
@@ -48,6 +47,16 @@ const HomeStack = () => {
     return (
       <Stack.Navigator headerMode="none">
         <Stack.Screen name="Favorites" component={FavoriteScreen} />
+        <Stack.Screen name="EventInfo" component={EventInfoScreen} />
+        <Stack.Screen name="OtherProfile" component={OtherProfileScreen} />
+      </Stack.Navigator>
+    );
+  };
+
+  const SearchStack = () => {    
+    return (
+      <Stack.Navigator headerMode="none">
+        <Stack.Screen name="Search" component={SearchScreen} />
         <Stack.Screen name="EventInfo" component={EventInfoScreen} />
         <Stack.Screen name="OtherProfile" component={OtherProfileScreen} />
       </Stack.Navigator>
@@ -80,7 +89,7 @@ const MainTabNavigator = () => {
                 ),
           }}
         >
-          {(props) => <SearchScreen {...props}/>}
+          {(props) => <SearchStack {...props}/>}
         </Tab.Screen>
         <Tab.Screen
           name="Create"

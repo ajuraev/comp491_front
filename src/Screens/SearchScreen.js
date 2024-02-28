@@ -5,14 +5,86 @@ import { Ionicons } from '@expo/vector-icons';
 import api from '../api/axiosConfig'
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
+import {Picker} from '@react-native-picker/picker';
+import EventList from "../components/EventList";
 
 
 function SearchScreen() {
     const [searchQuery, setSearchQuery] = useState('');
     const [users, setUsers] = useState([])
+    const [posts, setPosts] = useState([])
+    const [selectedCategory, setSelectedCategory] = useState('');
     const navigation = useNavigation();
+    const [content, setContent] = useState(0)
+
 
     const userData = useSelector(state => state.user.userData);
+
+    const Content = () => {
+      if(content == 0){
+
+        return (
+          <View style={{width:'93%'}}>
+            <ScrollView contentContainerStyle={{flexGrow: 1, alignItems: 'center'}}>
+                  <TextInput
+                      style={styles.input}
+                      placeholder="Search"
+                      onChangeText={handleSearch}
+                      value={searchQuery}
+                      placeholderTextColor='grey'
+                  />
+                  {users.map((user, index) => (
+                      <TouchableOpacity  
+                          onPress={() => navigation.navigate('OtherProfile', {email: user.email})}
+                          key={index} style={{ flexDirection: 'row', width: '100%',   padding: 10, borderRadius: 10 }}>
+                          <View style={{width: '10%', justifyContent: 'center'}}>
+                              <Image source={{ uri: user.profileImageUrl }} style={styles.profileImage} />
+                          </View>
+                          <View style={{flex: 1, marginLeft: 10}}>
+                              <Text style={styles.userDisplayName}>{user.displayName}</Text>
+                              <Text style={styles.userSurname}>{user.username}</Text>
+                          </View>
+                      </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+        )
+      }else if(content == 1){
+        return  <View style={{flex:1, marginTop: 15, alignItems: 'center'}}>
+                  <View style={{borderWidth: 1, borderColor: 'white', borderRadius: 10, width: '90%'}}>
+                    <Picker
+                      selectedValue={selectedCategory}
+                      onValueChange={(itemValue, itemIndex) => handleCategoryChange(itemValue)}
+                      dropdownIconColor='white'
+                      style={{ color: 'white', minWidth:'100%'}}
+                    >
+                      <Picker.Item label="Select a category" value=" " />
+                      <Picker.Item label="Sports" value="Sports" />
+                      <Picker.Item label="Football" value="Football" />
+                      <Picker.Item label="Music" value="Music" />
+                      <Picker.Item label="Basketball" value="Basketball" />
+                    </Picker>
+                  </View>
+                  <EventList navigation={navigation} posts={posts}/>
+                </View>
+      }
+  }
+
+    const handleCategoryChange = (itemValue) => {
+      setSelectedCategory(itemValue)
+
+      api.get(`/Event/SearchByCategory?categories=${itemValue}&token=${userData.token}`)
+      .then((response) => {
+        // Handle the successful response here
+        setPosts(response.data)
+        console.log('Posts:', posts);
+      })
+      .catch((error) => {
+        // Handle any errors here
+        console.error('Error:', error);
+      });
+    }
 
     const handleSearch = (query) => {
       setSearchQuery(query);
@@ -32,33 +104,24 @@ function SearchScreen() {
   
     return (
             <View style={styles.container}>
-                <View style={{flex:1, width: '90%', marginTop: 20}}>
-                    <TextInput
-                    style={styles.input}
-                    placeholder="Search"
-                    onChangeText={handleSearch}
-                    value={searchQuery}
-                    placeholderTextColor='grey'
-                    />
-                    <View style={{ flex: 1}}>
-                        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center'}}>
-                        {users.map((user, index) => (
-                            <TouchableOpacity  
-                                onPress={() => navigation.navigate('OtherProfile', {email: user.email})}
-                                key={index} style={{ flexDirection: 'row', width: '100%',   padding: 10, borderRadius: 10 }}>
-                                <View style={{width: '10%', justifyContent: 'center'}}>
-                                    <Image source={{ uri: user.profileImageUrl }} style={styles.profileImage} />
-                                </View>
-                                <View style={{flex: 1, marginLeft: 10}}>
-                                    <Text style={styles.userDisplayName}>{user.displayName}</Text>
-                                    <Text style={styles.userSurname}>{user.username}</Text>
-                                </View>
-                            </TouchableOpacity>
-                        ))}
-                        </ScrollView>
+                <View style={{flex:1, width: '100%', marginTop: 20}}>
+                    <Text style={styles.title}>Search</Text>
+                    <View style={{flexDirection: 'row', marginLeft: 15}}>
+                        <TouchableOpacity onPress={() => setContent(0)}>
+                            <Text style={{...styles.textButton, textDecorationLine: content == 0 ? 'underline' : 'none'}}>
+                                Users
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => setContent(1)}>
+                        <Text style={{...styles.textButton, textDecorationLine: content == 1 ? 'underline' : 'none'}}>
+                                Events
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ flex: 1, alignItems: 'center'}}>
+                        <Content/>
                     </View>
                 </View>
-                
             </View>
     );
   }
@@ -78,7 +141,8 @@ const styles = StyleSheet.create({
         fontSize: 28,
         color: 'white',
         paddingVertical: 10,
-        fontFamily: 'Montserrat_400Regular'
+        fontFamily: 'Montserrat_400Regular',
+        marginLeft: 15
     },
     input: {
         height: 40,
@@ -91,6 +155,12 @@ const styles = StyleSheet.create({
         fontSize: 20
 
     },
+    textButton: {
+      fontSize: 16,
+      color: '#ab162b',
+      fontFamily: 'Montserrat_400Regular',
+      paddingRight: 15,
+  },
     divider: {
         marginTop: '3%',
         borderBottomColor: '#393e46',

@@ -9,19 +9,46 @@ import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { format } from 'date-fns';
+import Tags from "react-native-tags";
 
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import CameraScreen from './CameraScreen';
 import { useSelector, useDispatch } from 'react-redux';
+import MultiSelect from 'react-native-multiple-select';
+
 
 const { StatusBarManager } = NativeModules;
 
-
+const categoriesList = [{
+  id: '1',
+  name: 'Music'
+}, {
+  id: '2',
+  name: 'Academic'
+}, {
+  id: '3',
+  name: 'Art'
+}, {
+  id: '4',
+  name: 'Dance'
+}, {
+  id: '5',
+  name: 'Football'
+}, {
+  id: '6',
+  name: 'Basketball'
+}, {
+  id: '7',
+  name: 'Tennis'
+}
+];
 
 function CreateScreen() {
     const [title, onChangeTitle] = useState('');
     const [description, onChangeDescription] = useState('');
     const [location, onChangeLocation] = useState('');
+    const [selectedCategories, setSelectedCategories] = useState([]);
     const [price, onChangePrice] = useState(-1);
     const [image, setImage] = useState(null);
     const [imageFile, setImageFile] = useState(null);
@@ -57,6 +84,7 @@ function CreateScreen() {
       setMaxAttendees("");
       setImage(null);
       setChosenDate(null);
+      setSelectedCategories([])
       
 
       navigation.navigate('Home');
@@ -65,8 +93,9 @@ function CreateScreen() {
 
 
     const isValidForm = () => {
+      console.log(selectedCategories)
       // Check if all the required fields are filled
-      if (!title || !description || !location || price === -1 || maxAttendees === -1 || !chosenDate || !image) {
+      if (!title || !description || !location || price === -1 || maxAttendees === -1 || !chosenDate || !image || selectedCategories.length == 0) {
           // One or more fields are empty or have invalid values
           // Optionally show an alert or set an error state here
           Alert.alert('','Please fill all the fields.',[
@@ -82,6 +111,17 @@ function CreateScreen() {
       return true;
     };
 
+    const handleSelectTag = (tag) => {
+      setSelectedTags(prevSelectedTags => {
+        if (prevSelectedTags.includes(tag)) {
+          // Remove the tag if it is already selected
+          return prevSelectedTags.filter(t => t !== tag);
+        } else {
+          // Add the tag if it is not selected
+          return [...prevSelectedTags, tag];
+        }
+      });
+    };
     const postEvent = () => {
 
 
@@ -98,10 +138,23 @@ function CreateScreen() {
       formData.append('eventDate', chosenDate.toISOString().replace(/\.\d+/, ''));
       formData.append('token', userData.token);
 
+      const selectedCategoryNames = selectedCategories.map(categoryId => {
+        const selectedCategory = categoriesList.find(category => category.id === categoryId);
+        return selectedCategory ? selectedCategory.name : ''; // Use an empty string if not found
+      });
+
+      selectedCategoryNames.forEach((categoryName, index) => {
+        formData.append(`categories[${index}]`, categoryName);
+      });
+      //formData.append('categories', selectedCategoryNames);
+
+      //console.log(selectedCategoryNames)
       console.log(formData)
 
       setIsLoading(true); // Start loading
       setPostStatus(-1)
+
+
 
       api.post(`/Event`, formData, {
         headers: {
@@ -165,22 +218,30 @@ function CreateScreen() {
       //console.log(result);
 
       if (!result.canceled) {
-        // Get the URI of the selected image
-        const imageUri = result.assets[0].uri;
-
-        setImage(imageUri)
-        // Download the image data from the URI
+        // Compress the selected image
+        const compressedImage = await ImageManipulator.manipulateAsync(
+          result.assets[0].uri,
+          [], // No transformations
+          { compress: 0.25, format: ImageManipulator.SaveFormat.JPEG } // Adjust compression here
+        );
+    
+        // Get the URI of the compressed image
+        const imageUri = compressedImage.uri;
+    
+        // Download the image data from the URI if necessary
         const response = await fetch(imageUri);
         const imageBuffer = await response.arrayBuffer();
-
+    
         setImage({
           name: 'image.jpg', // Name of the file to be sent
           type: 'image/jpeg', // MIME type of the file
           uri: imageUri,
           data: imageBuffer, // The image data as a buffer
-        })
+        });
       }
     };
+
+    
 
     return (
       <KeyboardAvoidingView 
@@ -231,12 +292,45 @@ function CreateScreen() {
                     placeholderTextColor='grey'
                   />
                   <TouchableOpacity onPress={pickImage} style={styles.imgContainer}>
-                    {image ? <Image source={{ uri: image }} style={styles.img}/> :(
+                    {image ? <Image source={{ uri: image.uri }} style={styles.img}/> :(
                     <View style={styles.placeholderImg}>
                       <Ionicons name="add-circle-outline" color={"white"} size={50} />
                     </View> 
                     )}
                   </TouchableOpacity>
+                  <MultiSelect
+                    items={categoriesList}
+                    uniqueKey="id"
+                    onSelectedItemsChange={setSelectedCategories}
+                    selectedItems={selectedCategories}
+                    selectText="Pick Categories"
+                    searchInputPlaceholderText="Search Categories..."
+                    tagRemoveIconColor="white"
+                    tagBorderColor="white"
+                    tagTextColor="white"
+                    selectedItemTextColor="white"
+                    selectedItemIconColor="white"
+                    selectedItemFontFamily="Montserrat_400Regular"	
+                    altFontFamily="Montserrat_400Regular"
+                    itemTextColor="grey"
+                    itemFontFamily='Montserrat_400Regular'
+                    itemFontSize={14}
+                    displayKey="name"
+                    hideSubmitButton
+                    hideDropdown
+                    styleMainWrapper={styles.multiSelectWrapper}  // Custom wrapper styles
+                    styleDropdownMenuSubsection={styles.dropdownMenuSubsection}  // Custom dropdown menu styles
+                    styleDropdownMenu={styles.dropdownMenu}  // Custom style for the dropdown menu
+                    styleInputGroup={styles.inputGroup}  // Custom input group styles
+                    styleSelectorContainer={styles.selectorContainer}  // Custom selector container styles
+                    styleTextDropdown={styles.textDropdown}  // Custom text dropdown styles
+                    styleItemsContainer={styles.itemsContainer}  // Custom text dropdown styles
+                    styleTextDropdownSelected={styles.textDropdownSelected}  // Custom style for selected dropdown text
+                    styleTextTag={styles.textTag}  // Custom style for tags
+                    textInputProps={{
+                      style: { fontFamily: 'Montserrat_400Regular', color: 'white', flex:1, justifyContent: 'space-between'}, // Set the font family for the input
+                    }}
+                  />
                   <TextInput
                     style={{...styles.input, height: 100,
                     textAlignVertical: 'top'}}
@@ -260,7 +354,7 @@ function CreateScreen() {
                     onChangeText={onChangePrice}
                     placeholder="Price"
                     keyboardType="numeric"
-                    value={price}
+                    value={price === -1 ? '' : price.toString()}
                     placeholderTextColor='grey'
                   />
                   <TextInput
@@ -422,6 +516,58 @@ const styles = StyleSheet.create({
       borderRadius: 10,
       justifyContent: 'center',
       alignItems:'center' 
-    }
+    },
+    multiSelectWrapper: {
+      borderWidth: 1,
+      marginVertical: 5
+    },
+    dropdownMenuSubsection: {
+      borderColor: 'white',  // Border color for the dropdown menu subsection
+      borderWidth: 1,  // Border width for the dropdown menu subsection,
+      borderRadius: 10,
+      backgroundColor: 'black',
+      height:50,
+    },
+    inputGroup: {
+      borderColor: 'white',  // Border color for the input group
+      borderWidth: 1,  // Border width for the input group
+      backgroundColor: 'black',
+      borderTopEndRadius: 10,
+      borderTopStartRadius: 10,
+
+
+    },
+    selectorContainer: {
+
+    },
+    textDropdownSelected: {
+      color: 'white',  // Set the text color for selected dropdown item
+      fontSize: 14,    // Set the font size for selected dropdown item
+      fontFamily: 'Montserrat_400Regular',
+      marginLeft: 10
+    },
+    textDropdown: {
+      color: 'white',  // Set the text color for dropdown items
+      fontSize: 14,    // Set the font size for dropdown items
+      fontFamily: 'Montserrat_400Regular',
+      marginLeft: 10
+
+    },
+    textTag: {
+      color: 'white',  // Set the text color for tags
+      fontSize: 14,    // Set the font size for tags
+      fontFamily: 'Montserrat_400Regular',
+      
+    },
+    dropdownMenu: {
+      backgroundColor: 'black',
+    },
+    itemsContainer: {
+      borderWidth: 1,
+      borderTopWidth: 0,
+      backgroundColor: 'black',
+      borderColor: 'white',
+
+    },
     });
 export default CreateScreen
